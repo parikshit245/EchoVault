@@ -10,3 +10,4 @@ httpx>=0.28,<1.0
 python-multipart>=0.0.20,<1.0
 grpcio>=1.70,<2.0
 grpcio-tools>=1.70,<2.0
+aio-pika>=9.4,<10.0

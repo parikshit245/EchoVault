@@ -21,6 +21,16 @@ class Settings(BaseSettings):
     storage_dir: str = "storage/evidence"
     max_upload_size_mb: int = 50
 
+    # RabbitMQ — Message-Oriented Communication (Part 6)
+    rabbitmq_host: str = "localhost"
+    rabbitmq_port: int = 5672
+    rabbitmq_username: str = "guest"
+    rabbitmq_password: str = "guest"
+    rabbitmq_vhost: str = "/"
+    rabbitmq_exchange: str = "echovault.events"
+    rabbitmq_message_ttl_seconds: int = 86400
+    rabbitmq_retry_limit: int = 3
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 

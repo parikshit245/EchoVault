@@ -1,4 +1,21 @@
 services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./services/node
@@ -19,10 +36,21 @@ services:
       GRPC_TIMEOUT_SECONDS: 5
       STORAGE_DIR: /app/storage/evidence
       MAX_UPLOAD_SIZE_MB: 50
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/}
+      RABBITMQ_EXCHANGE: echovault.events
+      RABBITMQ_MESSAGE_TTL_SECONDS: 86400
+      RABBITMQ_RETRY_LIMIT: 3
     volumes:
       - evidence_storage:/app/storage/evidence
     ports:
       - "8000:8000"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   node-a:
     build:
@@ -44,12 +72,23 @@ services:
       GRPC_TIMEOUT_SECONDS: 5
       STORAGE_DIR: /app/storage/evidence
       MAX_UPLOAD_SIZE_MB: 50
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/}
+      RABBITMQ_EXCHANGE: echovault.events
+      RABBITMQ_MESSAGE_TTL_SECONDS: 86400
+      RABBITMQ_RETRY_LIMIT: 3
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
     volumes:
       - evidence_node_a:/app/storage/evidence
     ports:
       - "8001:8001"
       - "50051:50051"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   node-b:
     build:
@@ -71,12 +110,23 @@ services:
       GRPC_TIMEOUT_SECONDS: 5
       STORAGE_DIR: /app/storage/evidence
       MAX_UPLOAD_SIZE_MB: 50
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/}
+      RABBITMQ_EXCHANGE: echovault.events
+      RABBITMQ_MESSAGE_TTL_SECONDS: 86400
+      RABBITMQ_RETRY_LIMIT: 3
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8002"]
     volumes:
       - evidence_node_b:/app/storage/evidence
     ports:
       - "8002:8002"
       - "50052:50052"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   frontend:
     build:
@@ -92,3 +142,4 @@ volumes:
   evidence_storage:
   evidence_node_a:
   evidence_node_b:
+  rabbitmq_data:

@@ -72,6 +72,10 @@ async def create_evidence(
         await session.rollback()
         raise RuntimeError("Unable to create evidence") from exc
     await session.refresh(evidence)
+
+    # Publish after successful DB commit — never before
+    await _publish_evidence_created(evidence)
+
     return evidence
 
 
@@ -127,6 +131,10 @@ async def update_evidence(session: AsyncSession, evidence: Evidence, payload: Ev
     evidence.updated_at = datetime.now(timezone.utc)
     await session.commit()
     await session.refresh(evidence)
+
+    # Publish after successful DB commit
+    await _publish_evidence_updated(evidence)
+
     return evidence
 
 
@@ -135,6 +143,10 @@ async def delete_evidence(session: AsyncSession, evidence: Evidence) -> Evidence
     evidence.updated_at = evidence.deleted_at
     await session.commit()
     await session.refresh(evidence)
+
+    # Publish after successful DB commit
+    await _publish_evidence_deleted(evidence)
+
     return evidence
 
 
@@ -171,9 +183,83 @@ async def create_uploaded_evidence(
         session.add(evidence)
         await session.commit()
         await session.refresh(evidence)
+
+        # Publish after successful DB commit — file already saved
+        await _publish_evidence_created(evidence)
+
         return evidence
     except Exception:
         await session.rollback()
         from .file_storage import resolve_storage_key
         resolve_storage_key(storage_key).unlink(missing_ok=True)
         raise
+
+
+# ── Private publish helpers ───────────────────────────────────────────────────
+
+async def _publish_evidence_created(evidence: Evidence) -> None:
+    try:
+        from ..messaging.publisher import publish_event
+        from ..messaging.schemas import EvidenceCreatedPayload
+        await publish_event(
+            "evidence.created",
+            EvidenceCreatedPayload(
+                evidence_id=evidence.evidence_id,
+                node_id=evidence.node_id,
+                event_type=evidence.event_type.value,
+                evidence_type=evidence.evidence_type.value,
+                title=evidence.title,
+                incident_id=evidence.incident_id,
+                captured_at=evidence.captured_at,
+            ),
+            incident_id=evidence.incident_id,
+        )
+    except Exception as exc:  # noqa: BLE001
+        import logging
+        logging.getLogger("echovault.services.evidence").warning(
+            "Could not publish evidence.created: %s", exc
+        )
+
+
+async def _publish_evidence_updated(evidence: Evidence) -> None:
+    try:
+        from ..messaging.publisher import publish_event
+        from ..messaging.schemas import EvidenceUpdatedPayload
+        await publish_event(
+            "evidence.updated",
+            EvidenceUpdatedPayload(
+                evidence_id=evidence.evidence_id,
+                node_id=evidence.node_id,
+                incident_id=evidence.incident_id,
+                title=evidence.title,
+                description=evidence.description,
+                updated_at=evidence.updated_at,
+            ),
+            incident_id=evidence.incident_id,
+        )
+    except Exception as exc:  # noqa: BLE001
+        import logging
+        logging.getLogger("echovault.services.evidence").warning(
+            "Could not publish evidence.updated: %s", exc
+        )
+
+
+async def _publish_evidence_deleted(evidence: Evidence) -> None:
+    try:
+        from ..messaging.publisher import publish_event
+        from ..messaging.schemas import EvidenceDeletedPayload
+        await publish_event(
+            "evidence.deleted",
+            EvidenceDeletedPayload(
+                evidence_id=evidence.evidence_id,
+                node_id=evidence.node_id,
+                incident_id=evidence.incident_id,
+                deleted_at=evidence.deleted_at,
+            ),
+            incident_id=evidence.incident_id,
+        )
+    except Exception as exc:  # noqa: BLE001
+        import logging
+        logging.getLogger("echovault.services.evidence").warning(
+            "Could not publish evidence.deleted: %s", exc
+        )

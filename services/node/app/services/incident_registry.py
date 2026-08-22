@@ -71,6 +71,10 @@ async def create_incident(session: AsyncSession, payload: IncidentCreate) -> Inc
     session.add(incident)
     await session.commit()
     await session.refresh(incident)
+
+    # Publish after successful DB commit
+    await _publish_incident_created(incident)
+
     return incident
 
 
@@ -99,6 +103,15 @@ async def update_incident(session: AsyncSession, incident: Incident, payload: In
     incident.updated_at = datetime.now(timezone.utc)
     await session.commit()
     await session.refresh(incident)
+
+    # Publish after successful DB commit — closed events get their own type
+    if new_status == IncidentStatus.CLOSED:
+        await _publish_incident_closed(incident)
+    elif new_status is not None:
+        await _publish_incident_updated(incident)
+    else:
+        await _publish_incident_updated(incident)
+
     return incident
 
 
@@ -134,6 +147,10 @@ async def attach_local_evidence(session: AsyncSession, incident: Incident, evide
     evidence.updated_at = datetime.now(timezone.utc)
     await session.commit()
     await session.refresh(evidence)
+
+    # Publish after successful DB commit
+    await _publish_evidence_associated(incident.incident_id, evidence_id)
+
     return evidence
 
 
@@ -145,9 +162,121 @@ async def remove_local_evidence(session: AsyncSession, incident: Incident, evide
     evidence.updated_at = datetime.now(timezone.utc)
     await session.commit()
     await session.refresh(evidence)
+
+    # Publish after successful DB commit
+    await _publish_evidence_removed(incident.incident_id, evidence_id)
+
     return evidence
 
 
 async def list_local_incident_evidence(session: AsyncSession, incident: Incident) -> list[Evidence]:
     from .evidence_registry import list_evidence
     return await list_evidence(session, incident_id=incident.incident_id)
+
+
+# ── Private publish helpers ───────────────────────────────────────────────────
+
+async def _publish_incident_created(incident: Incident) -> None:
+    try:
+        from ..messaging.publisher import publish_event
+        from ..messaging.schemas import IncidentCreatedPayload
+        await publish_event(
+            "incident.created",
+            IncidentCreatedPayload(
+                incident_id=incident.incident_id,
+                title=incident.title,
+                incident_type=incident.incident_type.value,
+                severity=incident.severity.value,
+                status=incident.status.value,
+                created_by_node_id=incident.created_by_node_id,
+            ),
+            incident_id=incident.incident_id,
+        )
+    except Exception as exc:  # noqa: BLE001
+        import logging
+        logging.getLogger("echovault.services.incident").warning(
+            "Could not publish incident.created: %s", exc
+        )
+
+
+async def _publish_incident_updated(incident: Incident) -> None:
+    try:
+        from ..messaging.publisher import publish_event
+        from ..messaging.schemas import IncidentUpdatedPayload
+        await publish_event(
+            "incident.updated",
+            IncidentUpdatedPayload(
+                incident_id=incident.incident_id,
+                title=incident.title,
+                status=incident.status.value,
+                severity=incident.severity.value,
+                updated_at=incident.updated_at,
+            ),
+            incident_id=incident.incident_id,
+        )
+    except Exception as exc:  # noqa: BLE001
+        import logging
+        logging.getLogger("echovault.services.incident").warning(
+            "Could not publish incident.updated: %s", exc
+        )
+
+
+async def _publish_incident_closed(incident: Incident) -> None:
+    try:
+        from ..messaging.publisher import publish_event
+        from ..messaging.schemas import IncidentClosedPayload
+        await publish_event(
+            "incident.closed",
+            IncidentClosedPayload(
+                incident_id=incident.incident_id,
+                title=incident.title,
+                status=incident.status.value,
+                ended_at=incident.ended_at,
+            ),
+            incident_id=incident.incident_id,
+        )
+    except Exception as exc:  # noqa: BLE001
+        import logging
+        logging.getLogger("echovault.services.incident").warning(
+            "Could not publish incident.closed: %s", exc
+        )
+
+
+async def _publish_evidence_associated(incident_id: str, evidence_id: str) -> None:
+    try:
+        from ..messaging.publisher import publish_event
+        from ..messaging.schemas import EvidenceAssociatedPayload
+        await publish_event(
+            "incident.evidence_associated",
+            EvidenceAssociatedPayload(
+                incident_id=incident_id,
+                evidence_id=evidence_id,
+                node_id=settings.node_id,
+            ),
+            incident_id=incident_id,
+        )
+    except Exception as exc:  # noqa: BLE001
+        import logging
+        logging.getLogger("echovault.services.incident").warning(
+            "Could not publish incident.evidence_associated: %s", exc
+        )
+
+
+async def _publish_evidence_removed(incident_id: str, evidence_id: str) -> None:
+    try:
+        from ..messaging.publisher import publish_event
+        from ..messaging.schemas import EvidenceRemovedPayload
+        await publish_event(
+            "incident.evidence_removed",
+            EvidenceRemovedPayload(
+                incident_id=incident_id,
+                evidence_id=evidence_id,
+                node_id=settings.node_id,
+            ),
+            incident_id=incident_id,
+        )
+    except Exception as exc:  # noqa: BLE001
+        import logging
+        logging.getLogger("echovault.services.incident").warning(
+            "Could not publish incident.evidence_removed: %s", exc
+        )

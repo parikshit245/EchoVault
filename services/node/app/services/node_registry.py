@@ -21,6 +21,10 @@ async def create_node(session: AsyncSession, payload: NodeCreate) -> Node:
         await session.rollback()
         raise DuplicateNodeError(payload.node_id) from exc
     await session.refresh(node)
+
+    # Publish node.registered after successful DB commit
+    await _publish_node_registered(node)
+
     return node
 
 
@@ -44,10 +48,16 @@ async def get_node(session: AsyncSession, node_id: str) -> Node | None:
 
 
 async def update_node(session: AsyncSession, node: Node, payload: NodeUpdate) -> Node:
+    old_status = node.status
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(node, field, value)
     await session.commit()
     await session.refresh(node)
+
+    # Publish node.status_changed only when status actually changes
+    if "status" in payload.model_dump(exclude_unset=True) and node.status != old_status:
+        await _publish_node_status_changed(node)
+
     return node
 
 
@@ -62,10 +72,15 @@ async def heartbeat(session: AsyncSession, node: Node) -> Node:
 
 
 async def deactivate_node(session: AsyncSession, node: Node) -> Node:
+    old_status = node.status
     node.status = NodeStatus.OFFLINE
     node.updated_at = datetime.now(timezone.utc)
     await session.commit()
     await session.refresh(node)
+
+    if node.status != old_status:
+        await _publish_node_status_changed(node)
+
     return node
 
 
@@ -92,3 +107,46 @@ async def register_self(session: AsyncSession) -> Node:
             grpc_port=payload.grpc_port,
         ))
     return await create_node(session, payload)
+
+
+# ── Private publish helpers ───────────────────────────────────────────────────
+
+async def _publish_node_registered(node: Node) -> None:
+    try:
+        from ..messaging.publisher import publish_event
+        from ..messaging.schemas import NodeRegisteredPayload
+        await publish_event(
+            "node.registered",
+            NodeRegisteredPayload(
+                node_id=node.node_id,
+                node_name=node.node_name,
+                node_type=node.node_type.value,
+                host=node.host,
+                port=node.port,
+            ),
+        )
+    except Exception as exc:  # noqa: BLE001
+        import logging
+        logging.getLogger("echovault.services.node").warning(
+            "Could not publish node.registered: %s", exc
+        )
+
+
+async def _publish_node_status_changed(node: Node) -> None:
+    try:
+        from datetime import datetime, timezone
+        from ..messaging.publisher import publish_event
+        from ..messaging.schemas import NodeStatusChangedPayload
+        await publish_event(
+            "node.status_changed",
+            NodeStatusChangedPayload(
+                node_id=node.node_id,
+                status=node.status.value,
+                timestamp=datetime.now(timezone.utc),
+            ),
+        )
+    except Exception as exc:  # noqa: BLE001
+        import logging
+        logging.getLogger("echovault.services.node").warning(
+            "Could not publish node.status_changed: %s", exc
+        )
