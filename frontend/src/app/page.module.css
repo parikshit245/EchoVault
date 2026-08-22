@@ -1,0 +1,115 @@
+.page {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #080b12;
+  color: #e8edf5;
+}
+
+.glow {
+  position: absolute;
+  width: 42rem;
+  height: 42rem;
+  border-radius: 50%;
+  background: #1f8fff;
+  filter: blur(140px);
+  opacity: 0.12;
+  transform: translate(28%, -20%);
+}
+.main {
+  position: relative;
+  display: flex;
+  width: min(100% - 3rem, 960px);
+  min-height: min(700px, calc(100vh - 3rem));
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(2rem, 7vw, 6rem);
+  border: 1px solid #202b3d;
+  background: linear-gradient(145deg, #101722 0%, #0b1019 65%, #0b111c 100%);
+  box-shadow: 0 32px 90px #0008;
+}
+.header,
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: #75849a;
+  font-family: var(--font-geist-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+}
+.mark {
+  display: grid;
+  width: 2.6rem;
+  height: 2.6rem;
+  place-items: center;
+  border: 1px solid #4ba8ff;
+  color: #7bc3ff;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.eyebrow {
+  align-self: center;
+}
+.intro {
+  margin: auto 0;
+  padding: 7rem 0;
+}
+.kicker {
+  margin-bottom: 1.25rem;
+  color: #53b3ff;
+  font-family: var(--font-geist-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+}
+.intro h1 {
+  margin: 0;
+  color: #f5f8fc;
+  font-size: clamp(3.7rem, 10vw, 7.8rem);
+  font-weight: 600;
+  letter-spacing: -0.08em;
+  line-height: 0.95;
+}
+.subtitle {
+  margin-top: 2rem;
+  color: #aebdce;
+  font-size: clamp(1.2rem, 2.2vw, 1.7rem);
+  line-height: 1.45;
+  letter-spacing: -0.025em;
+}
+.status {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 3.5rem;
+  color: #c8d5e4;
+  font-family: var(--font-geist-mono);
+  font-size: 0.78rem;
+}
+.statusDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #4ce09a;
+  box-shadow: 0 0 14px #4ce09a;
+}
+.footer {
+  border-top: 1px solid #202b3d;
+  padding-top: 1.25rem;
+}
+@media (max-width: 600px) {
+  .main {
+    width: min(100% - 1.5rem, 960px);
+    min-height: calc(100vh - 1.5rem);
+    padding: 1.5rem;
+  }
+  .intro {
+    padding: 5rem 0;
+  }
+  .footer {
+    flex-direction: column;
+  }
+}

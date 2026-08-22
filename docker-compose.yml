@@ -1,0 +1,94 @@
+services:
+  backend:
+    build:
+      context: ./services/node
+    env_file:
+      - .env
+    environment:
+      APP_NAME: EchoVault Node Service
+      APP_ENV: development
+      HOST: 0.0.0.0
+      PORT: 8000
+      NODE_ID: node-docker-001
+      NODE_NAME: Docker Development Node
+      NODE_TYPE: coordinator
+      NODE_HOST: localhost
+      GRPC_HOST: backend
+      GRPC_BIND_HOST: 0.0.0.0
+      GRPC_PORT: 50051
+      GRPC_TIMEOUT_SECONDS: 5
+      STORAGE_DIR: /app/storage/evidence
+      MAX_UPLOAD_SIZE_MB: 50
+    volumes:
+      - evidence_storage:/app/storage/evidence
+    ports:
+      - "8000:8000"
+
+  node-a:
+    build:
+      context: ./services/node
+    env_file:
+      - .env
+    environment:
+      APP_NAME: EchoVault Evidence Node
+      APP_ENV: development
+      HOST: 0.0.0.0
+      PORT: 8001
+      NODE_ID: CCTV-A
+      NODE_NAME: CCTV Camera A
+      NODE_TYPE: evidence
+      NODE_HOST: localhost
+      GRPC_HOST: node-a
+      GRPC_BIND_HOST: 0.0.0.0
+      GRPC_PORT: 50051
+      GRPC_TIMEOUT_SECONDS: 5
+      STORAGE_DIR: /app/storage/evidence
+      MAX_UPLOAD_SIZE_MB: 50
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
+    volumes:
+      - evidence_node_a:/app/storage/evidence
+    ports:
+      - "8001:8001"
+      - "50051:50051"
+
+  node-b:
+    build:
+      context: ./services/node
+    env_file:
+      - .env
+    environment:
+      APP_NAME: EchoVault Evidence Node
+      APP_ENV: development
+      HOST: 0.0.0.0
+      PORT: 8002
+      NODE_ID: CCTV-B
+      NODE_NAME: CCTV Camera B
+      NODE_TYPE: evidence
+      NODE_HOST: localhost
+      GRPC_HOST: node-b
+      GRPC_BIND_HOST: 0.0.0.0
+      GRPC_PORT: 50052
+      GRPC_TIMEOUT_SECONDS: 5
+      STORAGE_DIR: /app/storage/evidence
+      MAX_UPLOAD_SIZE_MB: 50
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8002"]
+    volumes:
+      - evidence_node_b:/app/storage/evidence
+    ports:
+      - "8002:8002"
+      - "50052:50052"
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:8000
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  evidence_storage:
+  evidence_node_a:
+  evidence_node_b:

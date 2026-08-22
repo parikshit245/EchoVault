@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package echovault.node.v1;
+
+import "google/protobuf/timestamp.proto";
+
+service NodeService {
+  rpc GetNodeInfo(NodeInfoRequest) returns (NodeInfoResponse);
+  rpc GetNodeStatus(NodeStatusRequest) returns (NodeStatusResponse);
+  rpc GetEvidence(GetEvidenceRequest) returns (GetEvidenceResponse);
+  rpc GetEvidenceByIncident(GetEvidenceByIncidentRequest) returns (GetEvidenceByIncidentResponse);
+  rpc Ping(PingRequest) returns (PingResponse);
+}
+
+message NodeInfoRequest {}
+message NodeInfoResponse {
+  string node_id = 1;
+  string node_name = 2;
+  string node_type = 3;
+  string host = 4;
+  int32 port = 5;
+  string status = 6;
+}
+message NodeStatusRequest {}
+message NodeStatusResponse {
+  string node_id = 1;
+  string status = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+message PingRequest {}
+message PingResponse {
+  string node_id = 1;
+  string status = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+message GetEvidenceRequest { string evidence_id = 1; }
+message GetEvidenceResponse { EvidenceMessage evidence = 1; }
+message GetEvidenceByIncidentRequest { string incident_id = 1; }
+message GetEvidenceByIncidentResponse { repeated EvidenceMessage evidence = 1; }
+message EvidenceMessage {
+  string evidence_id = 1;
+  string node_id = 2;
+  string incident_id = 3;
+  string event_type = 4;
+  string evidence_type = 5;
+  string title = 6;
+  string description = 7;
+  google.protobuf.Timestamp captured_at = 8;
+  google.protobuf.Timestamp received_at = 9;
+  string location_json = 10;
+  string metadata_json = 11;
+  string file_name = 12;
+  string mime_type = 13;
+  int64 file_size = 14;
+  string node_name = 15;
+}
