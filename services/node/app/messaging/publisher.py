@@ -1,5 +1,5 @@
 """
-RabbitMQ publisher — Part 6.
+RabbitMQ publisher — Part 6 / Part 7.
 
 Usage:
     from .messaging.publisher import publish_event
@@ -17,10 +17,20 @@ Design:
 - The application does NOT crash or block if the broker is temporarily down.
 - Messages are published as PERSISTENT (delivery_mode=2) to survive broker restarts.
 - Raw file/multimedia bytes are NEVER published — only metadata references.
+
+Part 7 — WebSocket bridge for self-originated events:
+  When this node publishes an event to RabbitMQ, the consumer will mark
+  it as IGNORED (self-origin check).  However, the frontend's live dashboard
+  should still see the event.
+
+  Solution: after a successful RabbitMQ publish, broadcast to WebSocket
+  clients directly via EventStreamService.  This is fire-and-forget —
+  WebSocket failure does NOT affect RabbitMQ delivery.
 """
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from datetime import datetime, timezone
@@ -52,18 +62,7 @@ async def publish_event(
         incident_id:    Optional incident this event relates to.
         correlation_id: Optional correlation ID for request tracing.
     """
-    if not messaging_connection.is_healthy():
-        logger.warning(
-            "Skipping publish — RabbitMQ unavailable",
-            extra={
-                "event_type": event_type,
-                "source_node_id": settings.node_id,
-                "status": "skipped",
-            },
-        )
-        return
-
-    # Build the envelope
+    # Build the envelope first — needed for WebSocket broadcast even if MQ is down
     if hasattr(payload, "model_dump"):
         payload_dict = payload.model_dump(mode="json")
     else:
@@ -78,6 +77,16 @@ async def publish_event(
         payload=payload_dict,
     )
 
+    if not messaging_connection.is_healthy():
+        logger.warning(
+            "Skipping RabbitMQ publish — unavailable: event_type=%s message_id=%s",
+            event_type,
+            envelope.message_id,
+        )
+        # Still broadcast to WebSocket even if RabbitMQ is down
+        _broadcast_to_ws(envelope)
+        return
+
     body = envelope.model_dump_json().encode()
     routing_key = event_type
 
@@ -85,6 +94,7 @@ async def publish_event(
         channel = messaging_connection.channel
         if channel is None:
             logger.warning("RabbitMQ channel not available, skipping publish")
+            _broadcast_to_ws(envelope)
             return
 
         exchange = await channel.get_exchange(EXCHANGE_NAME, ensure=False)
@@ -115,6 +125,10 @@ async def publish_event(
             )
         )
 
+        # Part 7: broadcast self-originated event to WebSocket clients
+        # The consumer will IGNORE this message (self-origin), so we bridge directly.
+        _broadcast_to_ws(envelope)
+
     except Exception as exc:  # noqa: BLE001
         logger.error(
             "Failed to publish event: %s — event_type=%s message_id=%s",
@@ -122,3 +136,17 @@ async def publish_event(
             event_type,
             envelope.message_id,
         )
+
+
+def _broadcast_to_ws(envelope: MessageEnvelope) -> None:
+    """
+    Schedule a fire-and-forget WebSocket broadcast for a self-originated event.
+
+    This is non-blocking — uses asyncio.create_task().
+    WebSocket unavailability is silently ignored.
+    """
+    try:
+        from ..websocket.event_stream import event_stream_service
+        asyncio.create_task(event_stream_service.broadcast_event(envelope))
+    except Exception:  # noqa: BLE001
+        pass  # WebSocket is non-critical

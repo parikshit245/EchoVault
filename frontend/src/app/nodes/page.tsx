@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useEventStream } from "../../hooks/useEventStream";
 import styles from "./page.module.css";
 
 type NodeType = "EVIDENCE" | "SECURITY" | "MOBILE" | "COORDINATOR";
@@ -34,19 +35,32 @@ const statusClass: Record<NodeStatus, string> = {
   UNKNOWN: styles.unknown,
 };
 
+function WsStatusDot({ status }: { status: string }) {
+  if (status === "connected")
+    return <span className={styles.wsLive} title="WebSocket: Live">● LIVE</span>;
+  if (status === "connecting")
+    return <span className={styles.wsConnecting} title="WebSocket: Connecting">● CONNECTING</span>;
+  return <span className={styles.wsOff} title="WebSocket: Disconnected">● OFFLINE</span>;
+}
+
 export default function NodesPage() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [remoteStatus, setRemoteStatus] = useState<Record<string, string>>({});
+  // Optimistic status overrides from WebSocket events
+  const [statusOverrides, setStatusOverrides] = useState<Record<string, NodeStatus>>({});
 
   const loadNodes = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(`${backendUrl}/api/v1/nodes`);
       if (!response.ok) throw new Error("Unable to load registered nodes.");
-      setNodes(await response.json());
+      const fresh: Node[] = await response.json();
+      setNodes(fresh);
+      // Clear overrides — fresh data takes precedence
+      setStatusOverrides({});
       setError(null);
     } catch (err) {
       setError(
@@ -58,9 +72,35 @@ export default function NodesPage() {
   }, []);
 
   useEffect(() => {
-    // The effect synchronizes the page with the external registry API.
     void loadNodes();
   }, [loadNodes]);
+
+  // WebSocket — subscribe to node events only
+  const { status: wsStatus, events: liveEvents } = useEventStream({
+    filters: {
+      event_types: ["node.registered", "node.status_changed"],
+    },
+  });
+
+  // On node.status_changed event: apply optimistic override + schedule refresh
+  const lastEventId = liveEvents[0]?.message_id;
+  useEffect(() => {
+    if (!lastEventId) return;
+    const ev = liveEvents[0];
+    if (!ev) return;
+
+    if (ev.event_type === "node.status_changed") {
+      const nodeId = ev.payload?.node_id as string | undefined;
+      const newStatus = ev.payload?.status as NodeStatus | undefined;
+      if (nodeId && newStatus) {
+        setStatusOverrides((prev) => ({ ...prev, [nodeId]: newStatus }));
+      }
+    }
+    // Refresh from API after a short delay for all node events
+    const t = setTimeout(() => void loadNodes(), 1500);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastEventId]);
 
   async function registerNode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -133,16 +173,25 @@ export default function NodesPage() {
           EV
         </Link>
         <span>NODE REGISTRY / 02</span>
-        <Link href="/">Return home</Link>
+        <div className={styles.headerRight}>
+          <WsStatusDot status={wsStatus} />
+          <Link href="/peers">Peers</Link>
+          <Link href="/messaging">Messaging</Link>
+          <Link href="/incidents">Incidents</Link>
+          <Link href="/evidence">Evidence</Link>
+          <Link href="/">Home</Link>
+        </div>
       </header>
+
       <section className={styles.hero}>
         <p className={styles.kicker}>DISCOVERY LAYER</p>
         <h1>Nodes</h1>
         <p>
           Track the identity, address, and current state of every EchoVault
-          participant.
+          participant. Status updates appear in real time via WebSocket.
         </p>
       </section>
+
       <section className={styles.content}>
         <div className={styles.panel}>
           <div className={styles.panelHeading}>
@@ -209,11 +258,33 @@ export default function NodesPage() {
             </button>
           </form>
         </div>
+
         <div className={styles.panel}>
           <div className={styles.panelHeading}>
             <h2>Registered nodes</h2>
-            <span>{nodes.length.toString().padStart(2, "0")} DISCOVERED</span>
+            <div className={styles.panelHeadingRight}>
+              <span>{nodes.length.toString().padStart(2, "0")} DISCOVERED</span>
+              <button className={styles.refreshBtn} onClick={() => void loadNodes()}>
+                ↺ Refresh
+              </button>
+            </div>
           </div>
+
+          {/* Live event strip */}
+          {liveEvents.length > 0 && (
+            <div className={styles.eventStrip}>
+              <span className={styles.eventStripDot} />
+              Latest:{" "}
+              <strong>{liveEvents[0].event_type}</strong>{" "}
+              from <strong>{liveEvents[0].source_node_id}</strong>
+              {liveEvents[0].latency_ms !== null && (
+                <span className={styles.eventStripLatency}>
+                  {liveEvents[0].latency_ms}ms
+                </span>
+              )}
+            </div>
+          )}
+
           {loading ? (
             <p className={styles.message}>Loading registry…</p>
           ) : error ? (
@@ -234,39 +305,48 @@ export default function NodesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {nodes.map((node) => (
-                    <tr key={node.id}>
-                      <td>
-                        <strong>{node.node_id}</strong>
-                        <small>{node.node_name}</small>
-                      </td>
-                      <td>{node.node_type}</td>
-                      <td>
-                        {node.host}:{node.port}
-                      </td>
-                      <td>
-                        <span
-                          className={`${styles.status} ${statusClass[node.status]}`}
-                        >
-                          ● {node.status}
-                        </span>
-                      </td>
-                      <td>{formatDate(node.last_seen_at)}</td>
-                      <td>
-                        <button
-                          className={styles.rpcButton}
-                          onClick={() => void checkRemoteStatus(node.node_id)}
-                        >
-                          View status
-                        </button>
-                        {remoteStatus[node.node_id] && (
-                          <small className={styles.rpcResult}>
-                            {remoteStatus[node.node_id]}
-                          </small>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                  {nodes.map((node) => {
+                    const effectiveStatus = statusOverrides[node.node_id] ?? node.status;
+                    return (
+                      <tr
+                        key={node.id}
+                        className={statusOverrides[node.node_id] ? styles.rowUpdated : ""}
+                      >
+                        <td>
+                          <strong>{node.node_id}</strong>
+                          <small>{node.node_name}</small>
+                        </td>
+                        <td>{node.node_type}</td>
+                        <td>
+                          {node.host}:{node.port}
+                        </td>
+                        <td>
+                          <span
+                            className={`${styles.status} ${statusClass[effectiveStatus]}`}
+                          >
+                            ● {effectiveStatus}
+                            {statusOverrides[node.node_id] && (
+                              <span className={styles.liveTag}>LIVE</span>
+                            )}
+                          </span>
+                        </td>
+                        <td>{formatDate(node.last_seen_at)}</td>
+                        <td>
+                          <button
+                            className={styles.rpcButton}
+                            onClick={() => void checkRemoteStatus(node.node_id)}
+                          >
+                            View status
+                          </button>
+                          {remoteStatus[node.node_id] && (
+                            <small className={styles.rpcResult}>
+                              {remoteStatus[node.node_id]}
+                            </small>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

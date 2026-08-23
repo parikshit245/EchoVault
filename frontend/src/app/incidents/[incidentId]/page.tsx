@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { useEventStream, type WsEvent } from "../../../hooks/useEventStream";
 import styles from "../page.module.css";
 
 type Incident = {
@@ -29,7 +30,50 @@ type Node = {
   role: string;
   status: string;
 };
+
 const api = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
+
+function WsStatusDot({ status }: { status: string }) {
+  const cls =
+    status === "connected"
+      ? styles.dotLive
+      : status === "connecting"
+      ? styles.dotConnecting
+      : styles.dotOff;
+  const label =
+    status === "connected" ? "LIVE" : status === "connecting" ? "CONNECTING…" : "OFFLINE";
+  return (
+    <span className={styles.wsIndicator}>
+      <span className={cls} />
+      {label}
+    </span>
+  );
+}
+
+function relative(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const secs = Math.floor(diff / 1000);
+  if (secs < 60) return `${secs}s ago`;
+  const mins = Math.floor(secs / 60);
+  if (mins < 60) return `${mins}m ago`;
+  return new Date(iso).toLocaleTimeString();
+}
+
+function ActivityItem({ event }: { event: WsEvent }) {
+  const time = new Date(event.timestamp).toLocaleTimeString();
+  const category = event.event_type.split(".")[0];
+  return (
+    <div className={styles.activityItem}>
+      <div className={styles.activityTime}>{time}</div>
+      <div className={styles.activityBody}>
+        <span className={`${styles.activityChip} ${styles[`chip_${category}`]}`}>
+          {event.event_type}
+        </span>
+        <span className={styles.activitySource}>{event.source_node_id}</span>
+      </div>
+    </div>
+  );
+}
 
 export default function IncidentDetails({
   params,
@@ -42,6 +86,13 @@ export default function IncidentDetails({
   const [nodes, setNodes] = useState<Node[]>([]);
   const [localEvidence, setLocalEvidence] = useState<Evidence[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // WebSocket real-time activity — filter to this incident
+  const { status: wsStatus, events: liveEvents } = useEventStream({
+    filters: id ? { incident_ids: [id] } : {},
+    enabled: !!id,
+  });
+
   const load = useCallback(async (incidentId: string) => {
     try {
       const responses = await Promise.all([
@@ -60,12 +111,23 @@ export default function IncidentDetails({
       setError(e instanceof Error ? e.message : "Unable to load incident.");
     }
   }, []);
+
   useEffect(() => {
     void params.then(({ incidentId }) => {
       setId(incidentId);
       void load(incidentId);
     });
   }, [params, load]);
+
+  // Refresh data when a relevant live event arrives
+  const lastEventId = liveEvents[0]?.message_id;
+  useEffect(() => {
+    if (!lastEventId || !id) return;
+    const t = setTimeout(() => void load(id), 1200);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastEventId]);
+
   async function request(path: string, method: string, body?: unknown) {
     const response = await fetch(`${api}${path}`, {
       method,
@@ -78,6 +140,7 @@ export default function IncidentDetails({
     }
     return response.json();
   }
+
   async function attach(evidenceId: string) {
     try {
       await request(`/api/v1/incidents/${id}/evidence/${evidenceId}`, "POST");
@@ -86,6 +149,7 @@ export default function IncidentDetails({
       setError(e instanceof Error ? e.message : "Unable to attach evidence.");
     }
   }
+
   async function statusChange(status: string) {
     try {
       await request(`/api/v1/incidents/${id}`, "PATCH", { status });
@@ -94,6 +158,7 @@ export default function IncidentDetails({
       setError(e instanceof Error ? e.message : "Invalid status transition.");
     }
   }
+
   if (error && !incident)
     return (
       <main className={styles.page}>
@@ -106,6 +171,7 @@ export default function IncidentDetails({
         <p className={styles.message}>Loading incident…</p>
       </main>
     );
+
   return (
     <main className={styles.page}>
       <header className={styles.header}>
@@ -113,8 +179,10 @@ export default function IncidentDetails({
           EV
         </Link>
         <span>INCIDENT / {incident.incident_id}</span>
+        <WsStatusDot status={wsStatus} />
         <Link href="/incidents">All incidents</Link>
       </header>
+
       <section className={styles.hero}>
         <p className={styles.kicker}>
           {incident.incident_type} · {incident.severity}
@@ -122,7 +190,9 @@ export default function IncidentDetails({
         <h1>{incident.title}</h1>
         <p>{incident.description || "No description provided."}</p>
       </section>
+
       {error && <p className={styles.error}>{error}</p>}
+
       <section className={styles.content}>
         <div className={styles.panel}>
           <div className={styles.heading}>
@@ -167,6 +237,29 @@ export default function IncidentDetails({
             )}
           </div>
         </div>
+
+        {/* ── Live Activity Feed ── */}
+        <div className={`${styles.panel} ${styles.activityPanel}`}>
+          <div className={styles.heading}>
+            <h2>Live Incident Activity</h2>
+            <WsStatusDot status={wsStatus} />
+          </div>
+          <div className={styles.activityFeed}>
+            {wsStatus === "connecting" && (
+              <p className={styles.message}>Connecting to event stream…</p>
+            )}
+            {wsStatus === "connected" && liveEvents.length === 0 && (
+              <p className={styles.message}>
+                Subscribed to <code>{id}</code>.<br />
+                <small>Events will appear here automatically.</small>
+              </p>
+            )}
+            {liveEvents.map((ev) => (
+              <ActivityItem key={ev.message_id} event={ev} />
+            ))}
+          </div>
+        </div>
+
         <div className={styles.panel}>
           <div className={styles.heading}>
             <h2>Participating nodes</h2>
@@ -188,6 +281,7 @@ export default function IncidentDetails({
           )}
         </div>
       </section>
+
       <section className={styles.panel + " " + styles.listPanel}>
         <div className={styles.heading}>
           <h2>Local evidence</h2>

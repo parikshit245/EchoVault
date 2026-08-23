@@ -88,7 +88,12 @@ export default function IncidentsPage() {
           EV
         </Link>
         <span>INCIDENT SERVICE / 04</span>
-        <Link href="/nodes">Node registry</Link>
+        <div style={{ display: "flex", gap: "1.2rem" }}>
+          <Link href="/peers">Peers</Link>
+          <Link href="/messaging">Messaging</Link>
+          <Link href="/evidence">Evidence</Link>
+          <Link href="/nodes">Nodes</Link>
+        </div>
       </header>
       <section className={styles.hero}>
         <p className={styles.kicker}>SHARED LOGICAL CONTEXT</p>

@@ -5,7 +5,7 @@ Lifecycle:
   start_consumer() is called from the FastAPI lifespan context manager.
   It sets up exchanges, queues, and bindings, then starts consuming.
 
-Message processing pipeline:
+Message processing pipeline (updated Part 7):
   1. Receive raw AMQP message
   2. Parse MessageEnvelope (JSON)
   3. Idempotency check — look up message_id in received_messages table
@@ -15,8 +15,15 @@ Message processing pipeline:
   5. Record RECEIVED in received_messages
   6. Dispatch to handler from EVENT_HANDLERS dict
   7. On success → update status to PROCESSED, ACK
+     → (Part 7) fire-and-forget WebSocket broadcast
   8. On failure → update status to FAILED, NACK (RabbitMQ requeues)
      → After RABBITMQ_RETRY_LIMIT failures the message is dead-lettered
+
+WebSocket bridge ordering (Part 7 §8):
+  The WebSocket broadcast happens AFTER the message is persisted AND ACK'd.
+  It is launched as asyncio.create_task() — completely non-blocking.
+  A WebSocket failure NEVER causes a NACK or RabbitMQ retry.
+  WebSocket is a best-effort real-time channel, NOT the durable event store.
 
 Dead-letter design:
   Node queues are declared with x-dead-letter-exchange pointing to
@@ -196,6 +203,16 @@ async def process_message(message: aio_pika.abc.AbstractIncomingMessage) -> None
                 })
             )
             await message.ack()
+
+            # ── Part 7: WebSocket bridge ──────────────────────────────────
+            # Fire-and-forget broadcast to connected browser clients.
+            # This MUST happen after ACK — WebSocket failure cannot cause NACK.
+            # asyncio.create_task ensures the consumer loop is not blocked.
+            try:
+                from ..websocket.event_stream import event_stream_service
+                asyncio.create_task(event_stream_service.broadcast_event(envelope))
+            except Exception:  # noqa: BLE001
+                pass  # WebSocket layer is non-critical to message processing
 
         except Exception as exc:  # noqa: BLE001
             delivery_count = await _get_delivery_count(message)

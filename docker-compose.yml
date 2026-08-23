@@ -34,6 +34,8 @@ services:
       GRPC_BIND_HOST: 0.0.0.0
       GRPC_PORT: 50051
       GRPC_TIMEOUT_SECONDS: 5
+      P2P_HOST: backend
+      P2P_PORT: 8000
       STORAGE_DIR: /app/storage/evidence
       MAX_UPLOAD_SIZE_MB: 50
       RABBITMQ_HOST: rabbitmq
@@ -70,6 +72,8 @@ services:
       GRPC_BIND_HOST: 0.0.0.0
       GRPC_PORT: 50051
       GRPC_TIMEOUT_SECONDS: 5
+      P2P_HOST: node-a
+      P2P_PORT: 8001
       STORAGE_DIR: /app/storage/evidence
       MAX_UPLOAD_SIZE_MB: 50
       RABBITMQ_HOST: rabbitmq
@@ -108,6 +112,8 @@ services:
       GRPC_BIND_HOST: 0.0.0.0
       GRPC_PORT: 50052
       GRPC_TIMEOUT_SECONDS: 5
+      P2P_HOST: node-b
+      P2P_PORT: 8002
       STORAGE_DIR: /app/storage/evidence
       MAX_UPLOAD_SIZE_MB: 50
       RABBITMQ_HOST: rabbitmq

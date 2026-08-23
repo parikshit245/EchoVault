@@ -229,3 +229,127 @@
     display: none;
   }
 }
+
+/* ── Part 7 WebSocket additions ─────────────────────────────────────────── */
+
+.wsIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #75849a;
+}
+
+.dotLive {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+  animation: livePulse 1.5s infinite;
+  flex-shrink: 0;
+}
+
+.dotConnecting {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #eab308;
+  animation: livePulse 1s infinite;
+  flex-shrink: 0;
+}
+
+.dotOff {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4a5568;
+  flex-shrink: 0;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.activityPanel {
+  overflow: hidden;
+}
+
+.activityFeed {
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.activityItem {
+  display: grid;
+  grid-template-columns: 75px 1fr;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid #1a2435;
+  animation: fadeSlide 0.2s ease-out;
+}
+
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.activityTime {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.65rem;
+  color: #4a5a70;
+  white-space: nowrap;
+}
+
+.activityBody {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.activityChip {
+  display: inline-block;
+  padding: 0.14rem 0.45rem;
+  border-radius: 3px;
+  font-size: 0.68rem;
+  font-family: var(--font-geist-mono), monospace;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.chip_evidence { background: rgba(139,92,246,0.15); color: #a78bfa; }
+.chip_incident { background: rgba(249,115,22,0.15); color: #fb923c; }
+.chip_node     { background: rgba(16,185,129,0.15); color: #34d399; }
+.chip_test     { background: rgba(107,114,128,0.15); color: #9ca3af; }
+
+.activitySource {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #a0b4c8;
+}
+
+.message small {
+  display: block;
+  color: #4a5a70;
+  font-size: 0.75rem;
+  margin-top: 0.4rem;
+}
+.message code {
+  font-family: var(--font-geist-mono), monospace;
+  color: #53b3ff;
+  font-size: 0.75rem;
+}
+
+.listPanel {
+  max-width: 1280px;
+  margin: 1.25rem auto 0;
+}
+

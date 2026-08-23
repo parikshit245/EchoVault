@@ -132,7 +132,12 @@ export default function EvidencePage() {
           EV
         </Link>
         <span>EVIDENCE NODE / 03</span>
-        <Link href="/nodes">Node registry</Link>
+        <div style={{ display: "flex", gap: "1.2rem" }}>
+          <Link href="/peers">Peers</Link>
+          <Link href="/messaging">Messaging</Link>
+          <Link href="/incidents">Incidents</Link>
+          <Link href="/nodes">Nodes</Link>
+        </div>
       </header>
       <section className={styles.hero}>
         <p className={styles.kicker}>LOCAL OWNERSHIP LAYER</p>

@@ -34,6 +34,8 @@ class Node(Base):
     port: Mapped[int] = mapped_column(Integer, nullable=False)
     grpc_host: Mapped[str | None] = mapped_column(String(255), nullable=True)
     grpc_port: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    p2p_host: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    p2p_port: Mapped[int | None] = mapped_column(Integer, nullable=True)
     status: Mapped[NodeStatus] = mapped_column(
         Enum(NodeStatus, name="node_status", native_enum=True),
         nullable=False,

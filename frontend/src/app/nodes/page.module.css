@@ -214,3 +214,110 @@
     flex-direction: column;
   }
 }
+
+/* ── Part 7 WebSocket additions ─────────────────────────────────────────── */
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.wsLive {
+  font: 0.65rem var(--font-geist-mono);
+  letter-spacing: 0.1em;
+  color: #22c55e;
+  animation: wsGlow 1.5s infinite;
+}
+.wsConnecting {
+  font: 0.65rem var(--font-geist-mono);
+  letter-spacing: 0.1em;
+  color: #eab308;
+  animation: wsGlow 1s infinite;
+}
+.wsOff {
+  font: 0.65rem var(--font-geist-mono);
+  letter-spacing: 0.1em;
+  color: #4a5568;
+}
+
+@keyframes wsGlow {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.panelHeadingRight {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.refreshBtn {
+  padding: 0.25rem 0.6rem;
+  background: transparent;
+  border: 1px solid #2a3a50;
+  color: #53b3ff;
+  cursor: pointer;
+  font-size: 0.7rem;
+  transition: border-color 0.15s;
+}
+.refreshBtn:hover { border-color: #53b3ff; }
+
+.eventStrip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+  background: rgba(34,197,94,0.05);
+  border: 1px solid rgba(34,197,94,0.15);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: #aebdce;
+  animation: eventHighlight 3s ease-out;
+}
+
+@keyframes eventHighlight {
+  0%   { background: rgba(34,197,94,0.15); }
+  100% { background: rgba(34,197,94,0.05); }
+}
+
+.eventStripDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 5px #22c55e;
+  animation: wsGlow 1.5s infinite;
+  flex-shrink: 0;
+}
+
+.eventStripLatency {
+  margin-left: auto;
+  font-size: 0.68rem;
+  color: #4a5a70;
+}
+
+.rowUpdated {
+  animation: rowFlash 2s ease-out;
+}
+
+@keyframes rowFlash {
+  0%   { background: rgba(34,197,94,0.1); }
+  100% { background: transparent; }
+}
+
+.liveTag {
+  display: inline-block;
+  margin-left: 0.4rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  background: rgba(34,197,94,0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34,197,94,0.3);
+  padding: 0.1em 0.4em;
+  border-radius: 10px;
+  vertical-align: middle;
+}
+

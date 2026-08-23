@@ -31,6 +31,11 @@ class Settings(BaseSettings):
     rabbitmq_message_ttl_seconds: int = 86400
     rabbitmq_retry_limit: int = 3
 
+    # Peer-to-Peer Communication (Part 8)
+    p2p_host: str = "localhost"
+    p2p_port: int = 8000
+    p2p_reconnect_max_backoff: int = 30
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 

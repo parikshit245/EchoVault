@@ -20,6 +20,8 @@ async def get_self_identity() -> NodeSelfResponse:
         port=settings.port,
         grpc_host=settings.grpc_host,
         grpc_port=settings.grpc_port,
+        p2p_host=settings.p2p_host,
+        p2p_port=settings.p2p_port,
     )
 
 

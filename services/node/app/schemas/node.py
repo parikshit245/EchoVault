@@ -14,6 +14,8 @@ class NodeCreate(BaseModel):
     port: int = Field(ge=1, le=65535)
     grpc_host: str | None = Field(default=None, max_length=255)
     grpc_port: int | None = Field(default=None, ge=1, le=65535)
+    p2p_host: str | None = Field(default=None, max_length=255)
+    p2p_port: int | None = Field(default=None, ge=1, le=65535)
     description: str | None = Field(default=None, max_length=2000)
 
     @field_validator("node_id", "node_name", "host")
@@ -31,6 +33,8 @@ class NodeUpdate(BaseModel):
     port: int | None = Field(default=None, ge=1, le=65535)
     grpc_host: str | None = Field(default=None, max_length=255)
     grpc_port: int | None = Field(default=None, ge=1, le=65535)
+    p2p_host: str | None = Field(default=None, max_length=255)
+    p2p_port: int | None = Field(default=None, ge=1, le=65535)
     status: NodeStatus | None = None
     description: str | None = Field(default=None, max_length=2000)
 
@@ -55,6 +59,8 @@ class NodeResponse(BaseModel):
     port: int
     grpc_host: str | None
     grpc_port: int | None
+    p2p_host: str | None
+    p2p_port: int | None
     status: NodeStatus
     description: str | None
     created_at: datetime
@@ -70,6 +76,8 @@ class NodeSelfResponse(BaseModel):
     port: int
     grpc_host: str
     grpc_port: int
+    p2p_host: str
+    p2p_port: int
 
 
 class NodeHeartbeatResponse(BaseModel):

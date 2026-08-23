@@ -2,159 +2,207 @@
 
 EchoVault is a Distributed Digital Evidence Collection and Incident Reconstruction System. It is being developed as a Distributed Systems mini-project, with independent evidence-producing nodes and a coordinator boundary designed for incremental communication features.
 
-> **Current implementation:** Part 4 adds incident management and local incident/evidence context. Evidence remains owned by its originating node; distributed communication features will be implemented incrementally.
+> **Current implementation:** Part 8 — Peer-to-Peer Messaging. Nodes can discover peer endpoints via the persistent Node Registry and establish direct, point-to-point WebSocket channels (`/ws/peer`) with mutual handshake verification, direct messaging, latency measurement, and targeted announcements without intermediate broker mediation.
 
 ## Architecture
 
+```text
+                         Node Registry (Discovery)
+                              │
+                 ┌────────────┼────────────┐
+                 │            │            │
+                 ▼            ▼            ▼
+              Node A       Node B       Node C
+                 │            ▲            ▲
+                 │            │            │
+                 └──────┬─────┘            │
+                        │ Direct P2P       │
+                        └─── /ws/peer ─────┘
+```
+
 ```mermaid
 flowchart LR
-    Browser[Next.js frontend] -->|HTTP| Node[FastAPI node service]
-    Node -->|TLS / async SQLAlchemy| Neon[(Neon PostgreSQL)]
-    Proto[Versioned protocol definitions] -. future gRPC / messaging .-> Node
+    subgraph Discovery
+        Reg[(Node Registry in Neon)]
+    end
+    
+    subgraph Nodes [Distributed Nodes]
+        NodeA[Node A: CCTV-A]
+        NodeB[Node B: CCTV-B]
+    end
+
+    subgraph Broker [Asynchronous Pub/Sub]
+        MQ[RabbitMQ]
+    end
+
+    subgraph BrowserStream [Stream-Oriented]
+        Dashboard[Investigator Dashboard]
+    end
+
+    NodeA -.->|1. Lookup Peer Address| Reg
+    NodeA <===>|2. Direct P2P Channel: /ws/peer| NodeB
+    NodeA -->|3. Async Events| MQ
+    MQ -->|Consume| NodeB
+    NodeA -->|4. Push Live Stream /ws/events| Dashboard
 ```
 
-The frontend and backend are independently deployable. The node service receives its identity from configuration, allowing later instances such as Node A, Node B, and Node C without a monolithic shared process.
+## Communication Mechanisms (Unit II Mapping)
 
-## Technology stack
+EchoVault implements five distinct communication mechanisms, each fulfilling a specific architectural role in distributed systems:
 
-- **Frontend:** Next.js, React, TypeScript, App Router
-- **Backend:** Python, FastAPI, Pydantic
-- **Database:** Neon PostgreSQL, SQLAlchemy async engine, asyncpg
+| Mechanism | Endpoints | Pattern | Transport | Characteristics |
+|-----------|-----------|---------|-----------|-----------------|
+| **REST** | Browser $\rightarrow$ Backend | Request/Response | HTTP/JSON | Stateless, client-initiated CRUD |
+| **gRPC** (Part 5) | Node $\rightarrow$ Node | Synchronous RPC | HTTP/2 Protobuf | Low-latency binary RPC with request IDs & deadlines |
+| **RabbitMQ** (Part 6) | Node $\rightarrow$ Broker $\rightarrow$ N Nodes | Asynchronous Pub/Sub | AMQP 0-9-1 | Decoupled 1-to-N persistence, DLX, broker-mediated |
+| **WebSocket Stream** (Part 7) | Backend $\rightarrow$ Browser | Continuous Stream | WebSocket (`/ws/events`) | Real-time push updates for UI dashboards |
+| **Direct P2P** (Part 8) | Node $\leftrightarrow$ Node | Point-to-Point Mesh | WebSocket (`/ws/peer`) | Direct bidirectional communication; no broker in message path |
+
+---
+
+### Peer-to-Peer Messaging (Part 8)
+
+#### 1. Discovery vs. Transport Separation
+- **Discovery**: When Node A wishes to communicate with Node B, it queries the **Node Registry** to retrieve Node B's registered `p2p_host` and `p2p_port`.
+- **Transport**: Once the address is obtained, Node A establishes a direct WebSocket connection to `ws://{p2p_host}:{p2p_port}/ws/peer`. **The message itself never passes through the Node Registry or RabbitMQ.**
+
+#### 2. Handshake & Target Identity Verification
+Before any application data is exchanged, nodes perform a two-step handshake:
+1. Initiator sends `HANDSHAKE` with its `node_id`, `node_name`, and `node_type`.
+2. Receiver responds with `HANDSHAKE_ACK` (status `ACCEPTED` or `REJECTED`).
+3. **Strict Target Verification**: The initiator verifies `handshake_ack.node_id == expected_node_id`. If an unexpected node responds, the connection is rejected immediately (`PeerIdentityMismatchError`).
+
+#### 3. P2P Protocol & Supported Message Types
+Every transmission is encapsulated in a validated `P2PMessageEnvelope`:
+
+```json
+{
+  "message_id": "peer-9a1b2c3d4e5f",
+  "message_type": "PEER_MESSAGE",
+  "source_node_id": "CCTV-A",
+  "target_node_id": "CCTV-B",
+  "timestamp": "2026-08-23T12:00:00Z",
+  "protocol_version": "1.0",
+  "payload": {
+    "text": "Direct sensor telemetry"
+  }
+}
+```
+
+Supported message types:
+- `HANDSHAKE` / `HANDSHAKE_ACK` — Identity exchange on connection.
+- `PING` / `PONG` — Direct liveness probe and round-trip time (RTT) calculation.
+- `PEER_MESSAGE` — Direct node-to-node test/telemetry payload.
+- `EVIDENCE_ANNOUNCEMENT` — Metadata-only notification of local evidence capture.
+- `INCIDENT_ANNOUNCEMENT` — Metadata-only notification of incident context.
+
+#### 4. Idempotency & Message Auditing
+All received P2P messages are checked against the `peer_messages` database table with a unique constraint on `message_id`:
+- **First Delivery**: Saved as `RECEIVED` $\rightarrow$ handler executed $\rightarrow$ updated to `PROCESSED`.
+- **Duplicate Delivery**: Detected via DB constraint $\rightarrow$ marked as `IGNORED` without re-processing.
+- **Failures**: Handler errors are captured as `FAILED` with `error_message`.
+
+#### 5. Bounded Exponential Backoff Reconnection
+If an active outbound peer connection drops unexpectedly, the `PeerManager` automatically schedules reconnection attempts with bounded exponential backoff ($1\text{s}, 2\text{s}, 4\text{s}, 8\text{s}, \dots, 30\text{s}$ max) to prevent connection storms.
+
+---
+
+## Technology Stack
+
+- **Frontend:** Next.js, React, TypeScript, App Router, CSS Modules (Turbopack pure selectors)
+- **Backend:** Python, FastAPI, Pydantic, asyncio, websockets
+- **Database:** Neon PostgreSQL, SQLAlchemy async engine, asyncpg, Alembic migrations
+- **Messaging:** RabbitMQ (aio-pika), topic exchange `echovault.events`
+- **RPC:** gRPC (grpcio), protobuf contract at `proto/echovault/node.proto`
+- **Real-time & P2P:** FastAPI WebSockets (`/ws/events` for UI stream, `/ws/peer` for P2P mesh)
 - **Infrastructure:** Docker and Docker Compose
-- **Version control:** Git
 
-Part 1 and 2 intentionally do not add RabbitMQ, Redis, Kafka, local PostgreSQL, gRPC, WebSockets, WebRTC, P2P, or evidence/incident features.
+---
 
-## Environment setup
+## Backend Endpoints
 
-Copy `.env.example` to `.env`, then replace `DATABASE_URL` with your Neon connection string. It must use the async SQLAlchemy scheme and SSL:
-
-`postgresql+asyncpg://username:password@host/database?sslmode=require`
-
-No credentials belong in Git. The remaining variables configure the service and development node identity; sensible defaults are provided by the backend.
-
-## Running locally
-
-Install frontend dependencies with `npm install` from `frontend/`. Install backend dependencies in a Python virtual environment from `services/node/requirements.txt`.
-
-Start the backend from the repository root with Uvicorn on port `8000`, and start the frontend with `npm run dev` from `frontend/` on port `3000`.
-
-Backend endpoints:
-
+### Health
 - `GET /` — service status
-- `GET /health` — application health
-- `GET /health/database` — real Neon `SELECT 1` connectivity check; returns HTTP 503 on failure
-- `GET /api/v1/node/self` — this process's configured identity and address
+- `GET /health` — overall system health (Database, RabbitMQ, gRPC, WebSocket, P2P)
+- `GET /health/database` — Neon connectivity check (HTTP 503 on error)
+- `GET /health/messaging` — RabbitMQ connectivity check (HTTP 503 on error)
+- `GET /health/websocket` — active browser WebSocket connection count
+- `GET /health/p2p` — active direct P2P connected peers count
+
+### Node Registry
+- `GET /api/v1/node/self` — this process's configured identity (HTTP, gRPC, and P2P addresses)
 - `POST /api/v1/node/self/register` — idempotently register this process
 - `POST /api/v1/nodes` — register a node
-- `GET /api/v1/nodes` — discover nodes, optionally filtered by `node_type` or `status`
-- `GET /api/v1/nodes/{node_id}` — retrieve node metadata
-- `PATCH /api/v1/nodes/{node_id}` — update metadata or status
-- `POST /api/v1/nodes/{node_id}/heartbeat` — set a node `ONLINE` and update `last_seen_at`
-- `DELETE /api/v1/nodes/{node_id}` — soft-deactivate a node as `OFFLINE`
-- `POST /api/v1/evidence` — create an observation owned by the configured node
-- `GET /api/v1/evidence` — list only this node's non-deleted evidence
-- `GET /api/v1/evidence/{evidence_id}` — retrieve local evidence metadata
-- `PATCH /api/v1/evidence/{evidence_id}` — update local metadata
-- `DELETE /api/v1/evidence/{evidence_id}` — soft-delete local evidence
-- `POST /api/v1/evidence/upload` — upload an allowed file to node-owned storage
-- `GET /api/v1/evidence/{evidence_id}/file` — download a local evidence file
-- `POST /api/v1/incidents` — create an incident owned by the configured node
-- `GET /api/v1/incidents` — list incidents with status/type/severity filters
-- `GET /api/v1/incidents/{incident_id}` — retrieve incident metadata
-- `PATCH /api/v1/incidents/{incident_id}` — update incident status and metadata
-- `POST /api/v1/incidents/{incident_id}/evidence/{evidence_id}` — attach local evidence
-- `DELETE /api/v1/incidents/{incident_id}/evidence/{evidence_id}` — remove an association only
-- `GET /api/v1/incidents/{incident_id}/evidence` — list evidence known locally
-- `POST /api/v1/incidents/{incident_id}/nodes/{node_id}` — add a participating node
-- `GET /api/v1/incidents/{incident_id}/nodes` — list participating nodes
-- `DELETE /api/v1/incidents/{incident_id}/nodes/{node_id}` — mark a node inactive
-- `GET /api/v1/remote/nodes/{node_id}/status` — retrieve status through gRPC
-- `GET /api/v1/remote/nodes/{node_id}/evidence/{evidence_id}` — retrieve remote metadata through gRPC
-- `GET /api/v1/remote/nodes/{node_id}/incidents/{incident_id}/evidence` — retrieve remote incident evidence through gRPC
+- `GET /api/v1/nodes` — discover nodes
+- `POST /api/v1/nodes/{node_id}/heartbeat` — update liveness (`ONLINE`)
 
-The registry distinguishes **identity** (`node_id`), **address** (`host` + `port`), and **state** (`status` + `last_seen_at`).
+### Peer-to-Peer (Part 8)
+- `WS /ws/peer` — dedicated node-to-node point-to-point WebSocket
+- `GET /api/v1/peers` — list discovered nodes and active P2P link states
+- `POST /api/v1/peers/{node_id}/connect` — establish direct P2P link with handshake verification
+- `POST /api/v1/peers/{node_id}/disconnect` — terminate direct P2P link
+- `POST /api/v1/peers/{node_id}/ping` — transmit direct PING and measure RTT in ms
+- `POST /api/v1/peers/{node_id}/message` — send direct P2P text message
+- `POST /api/v1/peers/{node_id}/announce/evidence/{evidence_id}` — announce local evidence directly
+- `POST /api/v1/peers/{node_id}/announce/incident/{incident_id}` — announce local incident directly
+- `GET /api/v1/peers/messages` — query received P2P message inbox with status filters
 
-## Remote Procedure Call
+### Evidence & Incidents
+- `POST /api/v1/evidence` — create node-owned evidence observation
+- `GET /api/v1/evidence` — list local evidence
+- `POST /api/v1/incidents` — create incident
+- `GET /api/v1/incidents` — list incidents
 
-Part 5 adds gRPC as internal communication middleware between independent nodes. The caller never accesses a peer's database directly:
+### Remote (gRPC) & Messaging (RabbitMQ)
+- `GET /api/v1/remote/nodes/{node_id}/status` — query remote status via gRPC
+- `GET /api/v1/messaging/messages` — query RabbitMQ received message history
 
-```text
-Application logic → gRPC middleware → network → remote NodeService → remote database
+---
+
+## Running Locally
+
+### Docker Setup
+```powershell
+docker compose up --build
 ```
 
-The protobuf contract is `proto/echovault/node.proto`; generated Python stubs live under `services/node/app/grpc/generated/`. Supported methods are `Ping`, `GetNodeInfo`, `GetNodeStatus`, `GetEvidence`, and `GetEvidenceByIncident`. Evidence RPCs expose metadata only, never filesystem paths or file contents.
+Nodes are exposed as:
+- **Coordinator**: HTTP `8000`, gRPC `50051`, P2P `8000`
+- **Node A (CCTV-A)**: HTTP `8001`, gRPC `50051`, P2P `8001`
+- **Node B (CCTV-B)**: HTTP `8002`, gRPC `50052`, P2P `8002`
+- **Frontend Dashboard**: `http://localhost:3000`
 
-Every outbound RPC uses the target node's registered `grpc_host` and `grpc_port`, carries a request ID, and has a configurable deadline through `GRPC_TIMEOUT_SECONDS`. Remote failures are returned as HTTP 503 and missing remote evidence as HTTP 404.
+### Register & Heartbeat Nodes
+```powershell
+# Register nodes
+Invoke-RestMethod -Uri "http://localhost:8000/api/v1/node/self/register" -Method POST
+Invoke-RestMethod -Uri "http://localhost:8001/api/v1/node/self/register" -Method POST
+Invoke-RestMethod -Uri "http://localhost:8002/api/v1/node/self/register" -Method POST
 
-Run the HTTP and gRPC ports separately. For local two-node development, configure `CCTV-A` as HTTP `8001`/gRPC `50051` and `CCTV-B` as HTTP `8002`/gRPC `50052`, register both nodes with `/api/v1/node/self/register`, then call the remote endpoints from either node. Compose includes `node-a` and `node-b` with the same image and separate identities.
-
-## Incident model
-
-An incident is a shared logical context, not an evidence owner:
-
-```text
-Incident INC-001
-├── Evidence from Node A (owned by Node A)
-├── Evidence from Node B (owned by Node B)
-└── Evidence from Node C (owned by Node C)
+# Heartbeat nodes
+Invoke-RestMethod -Uri "http://localhost:8000/api/v1/nodes/node-docker-001/heartbeat" -Method POST
+Invoke-RestMethod -Uri "http://localhost:8001/api/v1/nodes/CCTV-A/heartbeat" -Method POST
+Invoke-RestMethod -Uri "http://localhost:8002/api/v1/nodes/CCTV-B/heartbeat" -Method POST
 ```
 
-At this stage, an incident node can access only evidence known to the local node. Distributed evidence aggregation will be introduced through RPC and message-oriented communication in subsequent parts. Incident statuses follow `OPEN → INVESTIGATING → RESOLVED → CLOSED`; `OPEN → CLOSED` is also allowed.
+---
 
-## Evidence Node Architecture
+## Testing
 
-Each running process owns the evidence it creates. The server assigns ownership from `NODE_ID`; a client cannot submit or override `node_id`.
+```powershell
+cd services/node
 
-```text
-Node A (CCTV-A) → owns evidence created by CCTV-A
-Node B (CCTV-B) → owns evidence created by CCTV-B
-Node C (MOBILE-A) → owns evidence created by MOBILE-A
+# P2P tests only
+python -m pytest tests/test_p2p_protocol.py tests/test_p2p_manager.py tests/test_p2p_idempotency.py tests/test_p2p_endpoint.py -v
+
+# Full suite (86 tests)
+python -m pytest tests/ -v
 ```
 
-Evidence metadata is stored in Neon with a foreign key to the node registry. Files are stored outside PostgreSQL under `storage/evidence/<NODE_ID>/` and are never served through arbitrary filesystem paths. `captured_at` is when the observation happened, `received_at` is when this node recorded it, and `created_at` is the database record creation time.
+---
 
-For two local instances, use the same code and database with separate environment values:
-
-```text
-NODE_ID=CCTV-A  NODE_NAME="CCTV Camera A"  NODE_TYPE=EVIDENCE  NODE_HOST=localhost  PORT=8001
-NODE_ID=CCTV-B  NODE_NAME="CCTV Camera B"  NODE_TYPE=EVIDENCE  NODE_HOST=localhost  PORT=8002
-```
-
-Run the migration first, register each configured node with `POST /api/v1/node/self/register`, and each instance's evidence list remains node-local.
-
-## Database migration and seed data
-
-Run the Alembic migration after configuring Neon:
-
-`python -m alembic upgrade head`
-
-Then optionally add `CCTV-A`, `CCTV-B`, and `SECURITY-A` safely:
-
-`python scripts/seed_nodes.py`
-
-The seed script is idempotent. The migration, not application startup, owns database schema creation.
-
-## Docker
-
-After configuring `.env`, run `docker compose up --build`. The frontend is available at `http://localhost:3000` and the backend at `http://localhost:8000`. Stop the stack with `docker compose down`. Compose contains only `frontend` and `backend`; Neon remains an external managed database.
-
-Convenience targets include `make install`, `make frontend`, `make backend`, `make build`, `make up`, `make down`, and `make logs`.
-
-## Future development
-
-Later parts will add, in sequence:
-
-1. Node identity and registry
-2. Evidence node service
-3. Incident management
-4. gRPC
-5. RabbitMQ
-6. WebSockets
-7. P2P communication
-8. WebRTC
-9. Incident reconstruction
-10. Dashboard
-11. Integration/testing
-
-These features are intentionally outside Part 1.
+## Future Development
+1. Part 9 $\rightarrow$ WebRTC for direct media streaming (using P2P WebSocket control channel for signaling).
+2. Part 10 $\rightarrow$ Lamport & Vector Clocks for causal ordering.
+3. Part 11 $\rightarrow$ Distributed Election & Mutual Exclusion algorithms.
+4. Part 12 $\rightarrow$ Incident Reconstruction Timeline & Global Map Dashboard.

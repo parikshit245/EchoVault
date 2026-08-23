@@ -96,6 +96,8 @@ async def register_self(session: AsyncSession) -> Node:
         port=settings.port,
         grpc_host=settings.grpc_host,
         grpc_port=settings.grpc_port,
+        p2p_host=settings.p2p_host,
+        p2p_port=settings.p2p_port,
     )
     existing = await get_node(session, payload.node_id)
     if existing is not None:
@@ -105,6 +107,8 @@ async def register_self(session: AsyncSession) -> Node:
             port=payload.port,
             grpc_host=payload.grpc_host,
             grpc_port=payload.grpc_port,
+            p2p_host=payload.p2p_host,
+            p2p_port=payload.p2p_port,
         ))
     return await create_node(session, payload)
 

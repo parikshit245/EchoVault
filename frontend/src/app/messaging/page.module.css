@@ -1,3 +1,4 @@
+/* ── Base ────────────────────────────────────────────────────────────────── */
 .page {
   min-height: 100vh;
   display: flex;
@@ -84,18 +85,32 @@
   font-size: 0.88em;
 }
 
-/* ── Health row ──────────────────────────────────────────────────────────── */
-.healthRow {
+/* ── Status row ──────────────────────────────────────────────────────────── */
+.statusRow {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
+  gap: 1rem;
+  flex-wrap: wrap;
   font-size: 0.8rem;
+}
+
+.statusItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.statusDivider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255,255,255,0.1);
 }
 
 .healthLabel {
   color: #6070a0;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  font-size: 0.72rem;
 }
 
 .healthDot {
@@ -104,9 +119,10 @@
   border-radius: 50%;
   flex-shrink: 0;
 }
-.dotHealthy  { background: #22c55e; box-shadow: 0 0 8px #22c55e66; animation: pulse 2s infinite; }
-.dotUnhealthy { background: #ef4444; box-shadow: 0 0 8px #ef444466; }
-.dotUnknown  { background: #6b7280; }
+.dotHealthy    { background: #22c55e; box-shadow: 0 0 8px #22c55e66; animation: pulse 2s infinite; }
+.dotConnecting { background: #eab308; box-shadow: 0 0 8px #eab30866; animation: pulse 1s infinite; }
+.dotUnhealthy  { background: #ef4444; box-shadow: 0 0 8px #ef444466; }
+.dotUnknown    { background: #6b7280; }
 
 @keyframes pulse {
   0%,100% { opacity: 1; }
@@ -118,8 +134,26 @@
   font-weight: 600;
 }
 
+/* ── WS status pill ──────────────────────────────────────────────────────── */
+.wsStatusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 0.15rem 0.6rem;
+}
+
+.wsStatusLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #e8edf5;
+}
+
 .refreshBtn {
-  margin-left: 1rem;
+  margin-left: 0.5rem;
   padding: 0.3rem 0.8rem;
   background: rgba(91,156,246,0.1);
   border: 1px solid rgba(91,156,246,0.3);
@@ -134,7 +168,7 @@
 /* ── Architecture banner ─────────────────────────────────────────────────── */
 .archBanner {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 0;
   margin: 0 2rem 2rem;
   border: 1px solid rgba(255,255,255,0.07);
@@ -156,12 +190,244 @@
 .archIcon { font-size: 1.5rem; flex-shrink: 0; }
 
 .archDivider {
-  padding: 1.25rem 1rem;
+  padding: 1.25rem 0.75rem;
   color: #3a4a60;
   font-weight: 700;
   font-size: 0.85rem;
   border-left: 1px solid rgba(255,255,255,0.07);
   border-right: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+}
+
+/* ── Live WebSocket section ──────────────────────────────────────────────── */
+.liveSection {
+  margin: 0 2rem 2rem;
+  border: 1px solid rgba(34,197,94,0.2);
+  border-radius: 12px;
+  background: rgba(34,197,94,0.02);
+  overflow: hidden;
+}
+
+.liveControls {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-wrap: wrap;
+}
+
+.liveControlsLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.liveControlsRight {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 280px;
+}
+
+.liveSectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: #22c55e;
+  text-transform: uppercase;
+}
+
+.livePulse {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+  animation: pulse 1.5s infinite;
+  flex-shrink: 0;
+}
+
+.presetRow {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.presetBtn {
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: #8090a0;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.presetBtn:hover { background: rgba(255,255,255,0.08); color: #e8edf5; }
+.presetBtnActive {
+  background: rgba(34,197,94,0.15);
+  border-color: rgba(34,197,94,0.4);
+  color: #22c55e;
+}
+
+.customFilter {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.customFilterInput {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: #e8edf5;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.78rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.customFilterInput:focus { border-color: rgba(34,197,94,0.4); }
+.customFilterInput::placeholder { color: #3a4a60; }
+
+.customFilterBtn {
+  padding: 0.4rem 0.75rem;
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.3);
+  border-radius: 6px;
+  color: #22c55e;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.customFilterBtn:hover { background: rgba(34,197,94,0.2); }
+
+.clearBtn {
+  align-self: flex-end;
+  padding: 0.3rem 0.75rem;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  color: #5060a0;
+  font-size: 0.73rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.clearBtn:hover { border-color: rgba(255,255,255,0.2); color: #8090a0; }
+
+/* ── Live feed ───────────────────────────────────────────────────────────── */
+.liveFeed {
+  height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.liveState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  color: #3a4a60;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 2rem;
+}
+.liveState small { font-size: 0.75rem; color: #2a3440; }
+
+.liveItem {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.6rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: background 0.1s;
+  animation: slideIn 0.2s ease-out;
+}
+.liveItem:hover { background: rgba(255,255,255,0.02); }
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.liveItemNew {
+  /* brief highlight on new event arrival */
+  animation: slideIn 0.2s ease-out, newHighlight 0.8s ease-out;
+}
+
+@keyframes newHighlight {
+  0%   { background: rgba(34,197,94,0.08); }
+  100% { background: transparent; }
+}
+
+.liveItemTime {
+  font-family: monospace;
+  font-size: 0.72rem;
+  color: #4a5a70;
+  white-space: nowrap;
+}
+
+.liveItemBody {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+}
+
+.liveItemSource {
+  font-weight: 600;
+  color: #a0b4c8;
+}
+
+.liveItemIncident {
+  font-family: monospace;
+  font-size: 0.72rem;
+  color: #5b9cf6;
+  background: rgba(91,156,246,0.1);
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+}
+
+.liveItemLatency {
+  font-size: 0.68rem;
+  color: #3a4a60;
+  margin-left: auto;
+}
+
+.liveFeedFooter {
+  padding: 0.5rem 1.5rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.72rem;
+  color: #3a4a60;
+}
+.liveFeedFooter code {
+  font-family: monospace;
+  color: #5b9cf6;
+  font-size: 0.7rem;
 }
 
 /* ── Filters ─────────────────────────────────────────────────────────────── */
@@ -217,13 +483,13 @@
   overflow-x: auto;
 }
 
-table {
+.tableWrap table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.82rem;
 }
 
-thead th {
+.tableWrap thead th {
   text-align: left;
   padding: 0.75rem 1rem;
   font-size: 0.7rem;
@@ -234,14 +500,14 @@ thead th {
   white-space: nowrap;
 }
 
-tbody tr {
+.tableWrap tbody tr {
   border-bottom: 1px solid rgba(255,255,255,0.04);
   transition: background 0.1s;
 }
-tbody tr:hover { background: rgba(255,255,255,0.03); }
+.tableWrap tbody tr:hover { background: rgba(255,255,255,0.03); }
 .rowFailed { background: rgba(239,68,68,0.05); }
 
-tbody td {
+.tableWrap tbody td {
   padding: 0.7rem 1rem;
   color: #c0ccd8;
   vertical-align: middle;
@@ -273,6 +539,7 @@ tbody td {
   font-size: 0.72rem;
   font-family: monospace;
   font-weight: 600;
+  white-space: nowrap;
 }
 .chip_evidence { background: rgba(139,92,246,0.15); color: #a78bfa; }
 .chip_incident { background: rgba(249,115,22,0.15); color: #fb923c; }

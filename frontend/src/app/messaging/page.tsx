@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useEventStream, type WsEvent } from "../../hooks/useEventStream";
 import styles from "./page.module.css";
+
+// ── Types ────────────────────────────────────────────────────────────────────
 
 type MessageRecord = {
   id: string;
@@ -21,6 +24,14 @@ type MQHealth = {
   service: string;
   status: "healthy" | "unhealthy";
 };
+
+type WsHealth = {
+  service: string;
+  status: string;
+  active_connections: number;
+};
+
+// ── Constants ─────────────────────────────────────────────────────────────────
 
 const backendUrl =
   process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
@@ -41,6 +52,17 @@ const EVENT_TYPES = [
 
 const STATUS_OPTIONS = ["RECEIVED", "PROCESSED", "FAILED", "IGNORED"];
 
+const SUBSCRIPTION_PRESETS = [
+  { label: "All Events", filters: {} },
+  { label: "Evidence Only", filters: { event_types: ["evidence.created", "evidence.updated", "evidence.deleted"] } },
+  { label: "Incident Only", filters: { event_types: ["incident.created", "incident.updated", "incident.closed", "incident.evidence_associated", "incident.evidence_removed"] } },
+  { label: "Node Only", filters: { event_types: ["node.registered", "node.status_changed"] } },
+];
+
+const MAX_LIVE_EVENTS = 100;
+
+// ── Helper components ─────────────────────────────────────────────────────────
+
 function StatusBadge({ status }: { status: MessageRecord["status"] }) {
   return <span className={`${styles.badge} ${styles[`badge_${status}`]}`}>{status}</span>;
 }
@@ -59,11 +81,61 @@ function relative(iso: string): string {
   return new Date(iso).toLocaleTimeString();
 }
 
+function WsStatusPill({ status }: { status: string }) {
+  const dotClass =
+    status === "connected"
+      ? styles.dotHealthy
+      : status === "connecting"
+      ? styles.dotConnecting
+      : styles.dotUnhealthy;
+  const label =
+    status === "connected"
+      ? "LIVE"
+      : status === "connecting"
+      ? "CONNECTING"
+      : status === "error"
+      ? "ERROR"
+      : "DISCONNECTED";
+
+  return (
+    <span className={styles.wsStatusPill}>
+      <span className={`${styles.healthDot} ${dotClass}`} />
+      <span className={styles.wsStatusLabel}>{label}</span>
+    </span>
+  );
+}
+
+function LiveEventItem({ event }: { event: WsEvent }) {
+  const time = new Date(event.timestamp).toLocaleTimeString();
+  const category = event.event_type.split(".")[0];
+  return (
+    <div className={`${styles.liveItem} ${styles.liveItemNew}`}>
+      <div className={styles.liveItemTime}>{time}</div>
+      <div className={styles.liveItemBody}>
+        <span className={`${styles.chip} ${styles[`chip_${category}`]}`}>
+          {event.event_type}
+        </span>
+        <span className={styles.liveItemSource}>{event.source_node_id}</span>
+        {event.incident_id && (
+          <span className={styles.liveItemIncident}>{event.incident_id}</span>
+        )}
+        {event.latency_ms !== null && (
+          <span className={styles.liveItemLatency}>{event.latency_ms}ms</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
+
 export default function MessagingPage() {
+  // ── REST state ────────────────────────────────────────────────────────────
   const [records, setRecords] = useState<MessageRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mqHealth, setMqHealth] = useState<MQHealth | null>(null);
+  const [wsHealth, setWsHealth] = useState<WsHealth | null>(null);
 
   const [filterEvent, setFilterEvent] = useState("");
   const [filterSource, setFilterSource] = useState("");
@@ -78,6 +150,54 @@ export default function MessagingPage() {
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 50;
 
+  // ── WebSocket state ───────────────────────────────────────────────────────
+  const [activePreset, setActivePreset] = useState(0); // index into SUBSCRIPTION_PRESETS
+  const [customIncidentId, setCustomIncidentId] = useState("");
+  const [customNodeId, setCustomNodeId] = useState("");
+  const feedRef = useRef<HTMLDivElement>(null);
+
+  // useEventStream — starts with all events (no filter)
+  const { status: wsStatus, connectionId, events: liveEvents, subscribe, unsubscribe, clearEvents } =
+    useEventStream({
+      filters: SUBSCRIPTION_PRESETS[0].filters,
+    });
+
+  // Scroll live feed to top on new events
+  useEffect(() => {
+    if (feedRef.current) {
+      feedRef.current.scrollTop = 0;
+    }
+  }, [liveEvents.length]);
+
+  // Apply preset subscription when changed
+  useEffect(() => {
+    const preset = SUBSCRIPTION_PRESETS[activePreset];
+    // Unsubscribe everything first, then subscribe to preset
+    unsubscribe({
+      event_types: EVENT_TYPES,
+      source_node_ids: [],
+      incident_ids: [],
+    });
+    if (Object.keys(preset.filters).length > 0) {
+      subscribe(preset.filters);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activePreset]);
+
+  // Fetch WS health periodically
+  useEffect(() => {
+    async function fetchWsHealth() {
+      try {
+        const res = await fetch(`${backendUrl}/health/websocket`);
+        if (res.ok) setWsHealth(await res.json());
+      } catch {/* ignore */}
+    }
+    void fetchWsHealth();
+    const id = setInterval(() => void fetchWsHealth(), 10_000);
+    return () => clearInterval(id);
+  }, []);
+
+  // ── REST load ─────────────────────────────────────────────────────────────
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -117,6 +237,20 @@ export default function MessagingPage() {
     void load();
   }, [load]);
 
+  // After a live event arrives, refresh history after a short delay
+  const lastEventId = liveEvents[0]?.message_id;
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!lastEventId) return;
+    if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+    refreshTimerRef.current = setTimeout(() => void load(), 1500);
+    return () => {
+      if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastEventId]);
+
+  // ── Test publisher ────────────────────────────────────────────────────────
   async function publishTest() {
     setTestBusy(true);
     setTestResult(null);
@@ -131,8 +265,7 @@ export default function MessagingPage() {
       });
       const body = await res.json().catch(() => null);
       if (!res.ok) throw new Error(body?.detail ?? "Publish failed");
-      setTestResult("✓ Published successfully");
-      setTimeout(() => void load(), 800);
+      setTestResult("✓ Published — watch the live feed above");
     } catch (err) {
       setTestResult(`✗ ${err instanceof Error ? err.message : "Error"}`);
     } finally {
@@ -140,48 +273,82 @@ export default function MessagingPage() {
     }
   }
 
+  // ── Subscription helpers ──────────────────────────────────────────────────
+  function applyCustomIncident() {
+    const id = customIncidentId.trim();
+    if (!id) return;
+    subscribe({ incident_ids: [id] });
+  }
+  function applyCustomNode() {
+    const id = customNodeId.trim();
+    if (!id) return;
+    subscribe({ source_node_ids: [id] });
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <main className={styles.page}>
       {/* ── Header ── */}
       <header className={styles.header}>
         <Link href="/" className={styles.logo}>EV</Link>
-        <span>MESSAGE-ORIENTED COMMUNICATION / 06</span>
+        <span>STREAM-ORIENTED COMMUNICATION / 07</span>
         <nav className={styles.nav}>
           <Link href="/nodes">Nodes</Link>
           <Link href="/evidence">Evidence</Link>
           <Link href="/incidents">Incidents</Link>
+          <Link href="/peers">Peers</Link>
         </nav>
       </header>
 
       {/* ── Hero ── */}
       <section className={styles.hero}>
-        <p className={styles.kicker}>RABBITMQ ASYNC MESSAGING</p>
+        <p className={styles.kicker}>RABBITMQ + WEBSOCKET EVENT STREAM</p>
         <h1>Messaging Monitor</h1>
         <p className={styles.sub}>
-          Local inbox for asynchronous events received from the
-          distributed node network via the <code>echovault.events</code> exchange.
+          Real-time distributed events via <code>WebSocket</code> stream, backed by
+          the <code>echovault.events</code> RabbitMQ exchange for persistence.
         </p>
-        <div className={styles.healthRow}>
-          <span className={styles.healthLabel}>RabbitMQ</span>
-          <span
-            className={`${styles.healthDot} ${
-              mqHealth?.status === "healthy"
-                ? styles.dotHealthy
-                : mqHealth?.status === "unhealthy"
-                ? styles.dotUnhealthy
-                : styles.dotUnknown
-            }`}
-          />
-          <span className={styles.healthStatus}>
-            {mqHealth?.status ?? "checking…"}
-          </span>
+
+        {/* Status row */}
+        <div className={styles.statusRow}>
+          <div className={styles.statusItem}>
+            <span className={styles.healthLabel}>RabbitMQ</span>
+            <span
+              className={`${styles.healthDot} ${
+                mqHealth?.status === "healthy"
+                  ? styles.dotHealthy
+                  : mqHealth?.status === "unhealthy"
+                  ? styles.dotUnhealthy
+                  : styles.dotUnknown
+              }`}
+            />
+            <span className={styles.healthStatus}>
+              {mqHealth?.status ?? "checking…"}
+            </span>
+          </div>
+          <div className={styles.statusDivider} />
+          <div className={styles.statusItem}>
+            <span className={styles.healthLabel}>WebSocket</span>
+            <WsStatusPill status={wsStatus} />
+          </div>
+          {connectionId && (
+            <>
+              <div className={styles.statusDivider} />
+              <div className={styles.statusItem}>
+                <span className={styles.healthLabel}>Active Clients</span>
+                <span className={styles.healthStatus}>
+                  {wsHealth?.active_connections ?? "…"}
+                </span>
+              </div>
+            </>
+          )}
           <button className={styles.refreshBtn} onClick={() => void load()}>
-            ↺ Refresh
+            ↺ Refresh history
           </button>
         </div>
       </section>
 
-      {/* ── Architecture note ── */}
+      {/* ── Architecture banner ── */}
       <section className={styles.archBanner}>
         <div className={styles.archItem}>
           <span className={styles.archIcon}>⚡</span>
@@ -198,6 +365,102 @@ export default function MessagingPage() {
             <p>Asynchronous — Node A announces an event to N subscribers</p>
           </div>
         </div>
+        <div className={styles.archDivider}>vs</div>
+        <div className={styles.archItem}>
+          <span className={styles.archIcon}>⚡🌊</span>
+          <div>
+            <strong>WebSocket (Part 7)</strong>
+            <p>Stream — backend pushes events to browser clients continuously</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── WebSocket live panel ── */}
+      <section className={styles.liveSection}>
+        {/* Subscription controls */}
+        <div className={styles.liveControls}>
+          <div className={styles.liveControlsLeft}>
+            <span className={styles.liveSectionTitle}>
+              <span className={styles.livePulse} />
+              LIVE ACTIVITY
+            </span>
+            <div className={styles.presetRow}>
+              {SUBSCRIPTION_PRESETS.map((p, i) => (
+                <button
+                  key={p.label}
+                  className={`${styles.presetBtn} ${activePreset === i ? styles.presetBtnActive : ""}`}
+                  onClick={() => setActivePreset(i)}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className={styles.liveControlsRight}>
+            <div className={styles.customFilter}>
+              <input
+                className={styles.customFilterInput}
+                placeholder="Subscribe to incident (e.g. INC-000001)"
+                value={customIncidentId}
+                onChange={(e) => setCustomIncidentId(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && applyCustomIncident()}
+                id="ws-subscribe-incident"
+              />
+              <button className={styles.customFilterBtn} onClick={applyCustomIncident}>
+                + Subscribe
+              </button>
+            </div>
+            <div className={styles.customFilter}>
+              <input
+                className={styles.customFilterInput}
+                placeholder="Subscribe to node (e.g. CCTV-A)"
+                value={customNodeId}
+                onChange={(e) => setCustomNodeId(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && applyCustomNode()}
+                id="ws-subscribe-node"
+              />
+              <button className={styles.customFilterBtn} onClick={applyCustomNode}>
+                + Subscribe
+              </button>
+            </div>
+            <button className={styles.clearBtn} onClick={clearEvents}>
+              Clear feed
+            </button>
+          </div>
+        </div>
+
+        {/* Live feed */}
+        <div className={styles.liveFeed} ref={feedRef}>
+          {wsStatus === "connecting" && (
+            <div className={styles.liveState}>
+              <span className={styles.spinner} />
+              Connecting to WebSocket event stream…
+            </div>
+          )}
+          {wsStatus === "disconnected" && (
+            <div className={styles.liveState}>
+              WebSocket disconnected — reconnecting with backoff…
+            </div>
+          )}
+          {wsStatus === "connected" && liveEvents.length === 0 && (
+            <div className={styles.liveState}>
+              <span className={styles.livePulse} />
+              Connected. Waiting for events…
+              <small>Events from all nodes will appear here in real time.</small>
+            </div>
+          )}
+          {liveEvents.slice(0, MAX_LIVE_EVENTS).map((ev) => (
+            <LiveEventItem key={ev.message_id} event={ev} />
+          ))}
+        </div>
+
+        {liveEvents.length > 0 && (
+          <div className={styles.liveFeedFooter}>
+            Showing {Math.min(liveEvents.length, MAX_LIVE_EVENTS)} of{" "}
+            {liveEvents.length} events · WebSocket connection_id:{" "}
+            <code>{connectionId ?? "—"}</code>
+          </div>
+        )}
       </section>
 
       {/* ── Filters ── */}
@@ -236,10 +499,10 @@ export default function MessagingPage() {
         />
       </section>
 
-      {/* ── Message Table ── */}
+      {/* ── Message History Table ── */}
       <section className={styles.tableSection}>
         <div className={styles.tableHeader}>
-          <h2>Received Messages</h2>
+          <h2>Received Message History</h2>
           <span className={styles.count}>{records.length} records</span>
         </div>
 
@@ -312,7 +575,10 @@ export default function MessagingPage() {
         <div className={styles.devHeader}>
           <span className={styles.devBadge}>DEV ONLY</span>
           <h2>Test Publisher</h2>
-          <p>Publish a test event through RabbitMQ to demonstrate message routing.</p>
+          <p>
+            Publish a test event through RabbitMQ. It will immediately appear in
+            the live feed above via WebSocket — no page refresh needed.
+          </p>
         </div>
         <div className={styles.devForm}>
           <label>
