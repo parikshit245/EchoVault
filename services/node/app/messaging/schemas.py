@@ -3,7 +3,7 @@ Pydantic schemas for RabbitMQ message envelopes and payloads.
 
 All messages published to echovault.events MUST use MessageEnvelope.
 Payload models keep message contracts strongly typed.
-Raw evidence file bytes are NEVER included in messages — only metadata/references.
+Raw evidence file bytes and WebRTC media streams are NEVER included in messages — only metadata/references.
 """
 
 from __future__ import annotations
@@ -113,6 +113,41 @@ class NodeRegisteredPayload(BaseModel):
 class NodeStatusChangedPayload(BaseModel):
     node_id: str
     status: str
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+# ── WebRTC Session Lifecycle payloads (Part 9) ───────────────────────────────
+
+
+class WebRTCSessionRequestedPayload(BaseModel):
+    session_id: str
+    node_id: str
+    incident_id: str | None = None
+    has_video: bool = True
+    has_audio: bool = True
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class WebRTCSessionStartedPayload(BaseModel):
+    session_id: str
+    node_id: str
+    incident_id: str | None = None
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class WebRTCSessionEndedPayload(BaseModel):
+    session_id: str
+    node_id: str
+    incident_id: str | None = None
+    duration_seconds: float | None = None
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class WebRTCSessionFailedPayload(BaseModel):
+    session_id: str
+    node_id: str
+    incident_id: str | None = None
+    reason: str
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 

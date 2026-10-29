@@ -170,8 +170,13 @@ async def remove_local_evidence(session: AsyncSession, incident: Incident, evide
 
 
 async def list_local_incident_evidence(session: AsyncSession, incident: Incident) -> list[Evidence]:
-    from .evidence_registry import list_evidence
-    return await list_evidence(session, incident_id=incident.incident_id)
+    stmt = (
+        select(Evidence)
+        .where(Evidence.incident_id == incident.incident_id, Evidence.deleted_at.is_(None))
+        .order_by(Evidence.captured_at.asc())
+    )
+    result = await session.execute(stmt)
+    return list(result.scalars().unique().all())
 
 
 # ── Private publish helpers ───────────────────────────────────────────────────

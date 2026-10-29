@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Enum, Integer, String, Text, Uuid, func
+from sqlalchemy import Boolean, DateTime, Enum, Integer, String, Text, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..database import Base
@@ -36,6 +36,8 @@ class Node(Base):
     grpc_port: Mapped[int | None] = mapped_column(Integer, nullable=True)
     p2p_host: Mapped[str | None] = mapped_column(String(255), nullable=True)
     p2p_port: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    supports_video: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    supports_audio: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     status: Mapped[NodeStatus] = mapped_column(
         Enum(NodeStatus, name="node_status", native_enum=True),
         nullable=False,

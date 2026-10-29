@@ -24,11 +24,12 @@ router = APIRouter(prefix="/api/v1/evidence", tags=["evidence"])
 
 
 def as_response(evidence) -> EvidenceResponse:
+    owner_name = evidence.owner.node_name if getattr(evidence, "owner", None) else evidence.node_id
     return EvidenceResponse(
         id=evidence.id,
         evidence_id=evidence.evidence_id,
         node_id=evidence.node_id,
-        node_name=evidence.owner.node_name,
+        node_name=owner_name,
         incident_id=evidence.incident_id,
         evidence_type=evidence.evidence_type,
         event_type=evidence.event_type,

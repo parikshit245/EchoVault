@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import HeaderNav from "../../components/HeaderNav";
 import { useEventStream, type WsEvent } from "../../hooks/useEventStream";
 import styles from "./page.module.css";
 
@@ -234,6 +234,8 @@ export default function MessagingPage() {
   }, [filterEvent, filterSource, filterStatus, filterIncident, page]);
 
   useEffect(() => {
+    // Load the initial message history before subscribing to live updates.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, [load]);
 
@@ -285,20 +287,9 @@ export default function MessagingPage() {
     subscribe({ source_node_ids: [id] });
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <main className={styles.page}>
-      {/* ── Header ── */}
-      <header className={styles.header}>
-        <Link href="/" className={styles.logo}>EV</Link>
-        <span>STREAM-ORIENTED COMMUNICATION / 07</span>
-        <nav className={styles.nav}>
-          <Link href="/nodes">Nodes</Link>
-          <Link href="/evidence">Evidence</Link>
-          <Link href="/incidents">Incidents</Link>
-          <Link href="/peers">Peers</Link>
-        </nav>
-      </header>
+      <HeaderNav />
 
       {/* ── Hero ── */}
       <section className={styles.hero}>

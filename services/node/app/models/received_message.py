@@ -36,13 +36,23 @@ class ReceivedMessage(Base):
     __tablename__ = "received_messages"
 
     __table_args__ = (
-        UniqueConstraint("message_id", name="uq_received_message_id"),
+        UniqueConstraint(
+            "consumer_node_id",
+            "message_id",
+            name="uq_received_message_consumer_message",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
         Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     message_id: Mapped[str] = mapped_column(
+        String(100), nullable=False, index=True
+    )
+    # The PostgreSQL database is shared by the Docker processes, but each
+    # process has its own RabbitMQ inbox. The same envelope is therefore
+    # expected to appear once per consuming node.
+    consumer_node_id: Mapped[str] = mapped_column(
         String(100), nullable=False, index=True
     )
     source_node_id: Mapped[str] = mapped_column(String(100), nullable=False, index=True)

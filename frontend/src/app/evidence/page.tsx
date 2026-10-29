@@ -133,6 +133,7 @@ export default function EvidencePage() {
         </Link>
         <span>EVIDENCE NODE / 03</span>
         <div style={{ display: "flex", gap: "1.2rem" }}>
+          <Link href="/live">Live Feed</Link>
           <Link href="/peers">Peers</Link>
           <Link href="/messaging">Messaging</Link>
           <Link href="/incidents">Incidents</Link>

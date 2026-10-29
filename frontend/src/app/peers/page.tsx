@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import HeaderNav from "../../components/HeaderNav";
 import styles from "./page.module.css";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -305,18 +306,7 @@ export default function PeersPage() {
 
   return (
     <main className={styles.page}>
-      {/* ── Header ── */}
-      <header className={styles.header}>
-        <Link href="/" className={styles.logo}>EV</Link>
-        <span>PEER-TO-PEER MESH / 08</span>
-        <nav className={styles.nav}>
-          <Link href="/nodes">Nodes</Link>
-          <Link href="/evidence">Evidence</Link>
-          <Link href="/incidents">Incidents</Link>
-          <Link href="/messaging">Messaging</Link>
-          <Link href="/peers" className={styles.activeNav}>Peers</Link>
-        </nav>
-      </header>
+      <HeaderNav />
 
       {/* ── Hero ── */}
       <section className={styles.hero}>

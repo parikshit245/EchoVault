@@ -16,6 +16,8 @@ class NodeCreate(BaseModel):
     grpc_port: int | None = Field(default=None, ge=1, le=65535)
     p2p_host: str | None = Field(default=None, max_length=255)
     p2p_port: int | None = Field(default=None, ge=1, le=65535)
+    supports_video: bool = True
+    supports_audio: bool = True
     description: str | None = Field(default=None, max_length=2000)
 
     @field_validator("node_id", "node_name", "host")
@@ -35,6 +37,8 @@ class NodeUpdate(BaseModel):
     grpc_port: int | None = Field(default=None, ge=1, le=65535)
     p2p_host: str | None = Field(default=None, max_length=255)
     p2p_port: int | None = Field(default=None, ge=1, le=65535)
+    supports_video: bool | None = None
+    supports_audio: bool | None = None
     status: NodeStatus | None = None
     description: str | None = Field(default=None, max_length=2000)
 
@@ -61,6 +65,8 @@ class NodeResponse(BaseModel):
     grpc_port: int | None
     p2p_host: str | None
     p2p_port: int | None
+    supports_video: bool = True
+    supports_audio: bool = True
     status: NodeStatus
     description: str | None
     created_at: datetime
@@ -78,6 +84,8 @@ class NodeSelfResponse(BaseModel):
     grpc_port: int
     p2p_host: str
     p2p_port: int
+    supports_video: bool
+    supports_audio: bool
 
 
 class NodeHeartbeatResponse(BaseModel):

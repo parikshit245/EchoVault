@@ -1,208 +1,191 @@
 # EchoVault
 
-EchoVault is a Distributed Digital Evidence Collection and Incident Reconstruction System. It is being developed as a Distributed Systems mini-project, with independent evidence-producing nodes and a coordinator boundary designed for incremental communication features.
+**EchoVault** is a Distributed Digital Evidence Collection, Incident Reconstruction, and Real-Time Multimedia Streaming System developed for the Distributed Systems FA-1 evaluation.
 
-> **Current implementation:** Part 8 — Peer-to-Peer Messaging. Nodes can discover peer endpoints via the persistent Node Registry and establish direct, point-to-point WebSocket channels (`/ws/peer`) with mutual handshake verification, direct messaging, latency measurement, and targeted announcements without intermediate broker mediation.
+It demonstrates how autonomous, heterogeneous evidence-producing nodes (`CCTV-A`, `CCTV-B`, `SECURITY-A`, `MOBILE-A`) cooperate across a partitioned network to collect, authenticate, correlate, and stream forensic evidence without relying on centralized storage.
 
-## Architecture
+---
+
+## 1. Complete FA-1 Distributed Architecture
+
+EchoVault implements six distinct communication layers, keeping responsibilities strictly separated:
 
 ```text
-                         Node Registry (Discovery)
-                              │
-                 ┌────────────┼────────────┐
-                 │            │            │
-                 ▼            ▼            ▼
-              Node A       Node B       Node C
-                 │            ▲            ▲
-                 │            │            │
-                 └──────┬─────┘            │
-                        │ Direct P2P       │
-                        └─── /ws/peer ─────┘
+                                ECHOVAULT
+                                    │
+           ┌────────────────────────┼────────────────────────┐
+           │                        │                        │
+        Node A                   Node B                   Node C
+        CCTV-A                   CCTV-B                 SECURITY-A
+           │                        │                        │
+     ┌─────┼──────┬──────────┬──────┼──────┬──────────┬──────┼─────┐
+     │     │      │          │      │      │          │      │     │
+   gRPC  RabbitMQ P2P       gRPC  RabbitMQ P2P       gRPC  RabbitMQ P2P
+     │     │      │          │      │      │          │      │     │
+     │     ▼      │          │      ▼      │          │      ▼     │
+     │ ┌────────┐ │          │  ┌────────┐ │          │  ┌────────┐│
+     │ │AMQP Pub│ │          │  │AMQP Pub│ │          │  │AMQP Pub││
+     │ └───┬────┘ │          │  └───┬────┘ │          │  └───┬────┘│
+     │     │      │          │      │      │          │      │     │
+     │     ▼      │          │      ▼      │          │      ▼     │
+     │  RabbitMQ  │          │   RabbitMQ  │          │   RabbitMQ │
+     │  Broker    │          │   Broker    │          │   Broker   │
+     │     │      │          │      │      │          │      │     │
+     │     ▼      │          │      │      │          │      │     │
+     │ WebSocket  │          │      │      │          │      │     │
+     │ /ws/events │          │      │      │          │      │     │
+     │     │      │          │      │      │          │      │     │
+     └─────┼──────┼──────────┴──────┼──────┼──────────┴──────┼─────┘
+           │      │                 │      │                 │
+           ▼      ▼                 ▼      ▼                 ▼
+   ┌─────────────────────────────────────────────────────────────┐
+   │             INVESTIGATOR DASHBOARD & COMMAND CENTER         │
+   │                                                             │
+   │  • Unified Operations Dashboard       (/dashboard)          │
+   │  • Incident Command Center            (/incidents/INC-001)  │
+   │  • WebRTC Live Multimedia Stage       (/live)               │
+   │  • Direct P2P Mesh Manager            (/peers)              │
+   │  • Real-Time Messaging Monitor        (/messaging)          │
+   │  • System Health & Diagnostics        (/system)             │
+   └─────────────────────────────────────────────────────────────┘
 ```
 
 ```mermaid
-flowchart LR
-    subgraph Discovery
-        Reg[(Node Registry in Neon)]
-    end
-    
-    subgraph Nodes [Distributed Nodes]
-        NodeA[Node A: CCTV-A]
-        NodeB[Node B: CCTV-B]
+flowchart TD
+    subgraph DistributedNodes [Distributed Evidence Nodes]
+        NodeA["CCTV-A (Optical Camera: 8001 / gRPC: 50051)"]
+        NodeB["CCTV-B (Corridor Dome: 8002 / gRPC: 50052)"]
+        NodeC["SECURITY-A (Sensor Hub: 8000 / gRPC: 50051)"]
+        NodeD["MOBILE-A (Patrol Bodycam: 8003)"]
     end
 
-    subgraph Broker [Asynchronous Pub/Sub]
-        MQ[RabbitMQ]
+    subgraph Middleware [Distributed Communication Middleware]
+        MQ["RabbitMQ Broker: echovault.events (AMQP 0-9-1)"]
+        Registry[("Neon PostgreSQL: Node Registry & Metadata")]
     end
 
-    subgraph BrowserStream [Stream-Oriented]
-        Dashboard[Investigator Dashboard]
+    subgraph ClientUI [Investigator Dashboard]
+        Dashboard["Command Center (/dashboard)"]
+        IncidentView["Incident Command (/incidents/INC-000001)"]
+        LiveFeed["WebRTC Multimedia Stage (/live)"]
     end
 
-    NodeA -.->|1. Lookup Peer Address| Reg
-    NodeA <===>|2. Direct P2P Channel: /ws/peer| NodeB
-    NodeA -->|3. Async Events| MQ
-    MQ -->|Consume| NodeB
-    NodeA -->|4. Push Live Stream /ws/events| Dashboard
+    NodeA <-->|1. gRPC Synchronous RPC: GetEvidence| NodeB
+    NodeA <-->|2. Direct P2P WebSocket: /ws/peer| NodeB
+    NodeA -->|3. Async Events: evidence.created| MQ
+    MQ -->|4. Fanout Delivery to Consumers| NodeB
+    MQ -->|5. Real-Time Push: /ws/events| Dashboard
+    NodeA -.->|6. Registration & Heartbeat| Registry
+    ClientUI <-->|7. Dedicated Signaling: /ws/webrtc| NodeA
+    NodeA ===>|8. Live RTP Video & Audio Feed: RTCPeerConnection| LiveFeed
 ```
 
-## Communication Mechanisms (Unit II Mapping)
+---
 
-EchoVault implements five distinct communication mechanisms, each fulfilling a specific architectural role in distributed systems:
+## 2. Communication Mechanisms Comparison Matrix
 
-| Mechanism | Endpoints | Pattern | Transport | Characteristics |
-|-----------|-----------|---------|-----------|-----------------|
-| **REST** | Browser $\rightarrow$ Backend | Request/Response | HTTP/JSON | Stateless, client-initiated CRUD |
-| **gRPC** (Part 5) | Node $\rightarrow$ Node | Synchronous RPC | HTTP/2 Protobuf | Low-latency binary RPC with request IDs & deadlines |
-| **RabbitMQ** (Part 6) | Node $\rightarrow$ Broker $\rightarrow$ N Nodes | Asynchronous Pub/Sub | AMQP 0-9-1 | Decoupled 1-to-N persistence, DLX, broker-mediated |
-| **WebSocket Stream** (Part 7) | Backend $\rightarrow$ Browser | Continuous Stream | WebSocket (`/ws/events`) | Real-time push updates for UI dashboards |
-| **Direct P2P** (Part 8) | Node $\leftrightarrow$ Node | Point-to-Point Mesh | WebSocket (`/ws/peer`) | Direct bidirectional communication; no broker in message path |
+| Mechanism | Communication | Transport | Pattern | Syllabus Role & Purpose |
+| :--- | :--- | :--- | :--- | :--- |
+| **REST** | Browser $\leftrightarrow$ Backend | HTTP/1.1 / JSON | Request / Response | Stateless CRUD, Node registration, Incident management |
+| **gRPC** (Part 5) | Node $\leftrightarrow$ Node | HTTP/2 / Protobuf | Synchronous RPC | Inter-node procedure calls (`GetEvidence`, `GetNodeStatus`) with timeouts |
+| **RabbitMQ** (Part 6) | Node $\rightarrow$ Broker $\rightarrow$ Nodes | AMQP 0-9-1 | Asynchronous Pub/Sub | Decoupled 1-to-N event persistence with DLX and topic routing |
+| **WebSocket Stream** (Part 7) | Backend $\rightarrow$ Browser | WebSocket (`/ws/events`) | Continuous Stream | Real-time event push updates for investigator UI dashboards |
+| **P2P WebSocket** (Part 8) | Node $\leftrightarrow$ Node | WebSocket (`/ws/peer`) | Point-to-Point Mesh | Direct node-to-node control, telemetry, and announcements without broker |
+| **WebRTC** (Part 9) | Node $\leftrightarrow$ Browser | UDP / SRTP / RTP | Real-Time Multimedia | Low-latency live video (25 FPS HUD) and audio streaming from cameras |
 
 ---
 
-### Peer-to-Peer Messaging (Part 8)
+## 3. Distributed Node Model
 
-#### 1. Discovery vs. Transport Separation
-- **Discovery**: When Node A wishes to communicate with Node B, it queries the **Node Registry** to retrieve Node B's registered `p2p_host` and `p2p_port`.
-- **Transport**: Once the address is obtained, Node A establishes a direct WebSocket connection to `ws://{p2p_host}:{p2p_port}/ws/peer`. **The message itself never passes through the Node Registry or RabbitMQ.**
+EchoVault ships with 4 pre-configured demo nodes:
 
-#### 2. Handshake & Target Identity Verification
-Before any application data is exchanged, nodes perform a two-step handshake:
-1. Initiator sends `HANDSHAKE` with its `node_id`, `node_name`, and `node_type`.
-2. Receiver responds with `HANDSHAKE_ACK` (status `ACCEPTED` or `REJECTED`).
-3. **Strict Target Verification**: The initiator verifies `handshake_ack.node_id == expected_node_id`. If an unexpected node responds, the connection is rejected immediately (`PeerIdentityMismatchError`).
-
-#### 3. P2P Protocol & Supported Message Types
-Every transmission is encapsulated in a validated `P2PMessageEnvelope`:
-
-```json
-{
-  "message_id": "peer-9a1b2c3d4e5f",
-  "message_type": "PEER_MESSAGE",
-  "source_node_id": "CCTV-A",
-  "target_node_id": "CCTV-B",
-  "timestamp": "2026-08-23T12:00:00Z",
-  "protocol_version": "1.0",
-  "payload": {
-    "text": "Direct sensor telemetry"
-  }
-}
-```
-
-Supported message types:
-- `HANDSHAKE` / `HANDSHAKE_ACK` — Identity exchange on connection.
-- `PING` / `PONG` — Direct liveness probe and round-trip time (RTT) calculation.
-- `PEER_MESSAGE` — Direct node-to-node test/telemetry payload.
-- `EVIDENCE_ANNOUNCEMENT` — Metadata-only notification of local evidence capture.
-- `INCIDENT_ANNOUNCEMENT` — Metadata-only notification of incident context.
-
-#### 4. Idempotency & Message Auditing
-All received P2P messages are checked against the `peer_messages` database table with a unique constraint on `message_id`:
-- **First Delivery**: Saved as `RECEIVED` $\rightarrow$ handler executed $\rightarrow$ updated to `PROCESSED`.
-- **Duplicate Delivery**: Detected via DB constraint $\rightarrow$ marked as `IGNORED` without re-processing.
-- **Failures**: Handler errors are captured as `FAILED` with `error_message`.
-
-#### 5. Bounded Exponential Backoff Reconnection
-If an active outbound peer connection drops unexpectedly, the `PeerManager` automatically schedules reconnection attempts with bounded exponential backoff ($1\text{s}, 2\text{s}, 4\text{s}, 8\text{s}, \dots, 30\text{s}$ max) to prevent connection storms.
+| Node ID | Node Name | Type | Video | Audio | HTTP Port | gRPC Port | Role & Description |
+| :--- | :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| `CCTV-A` | CCTV Camera A | `EVIDENCE` | YES | YES | `8001` | `50051` | Fixed perimeter optical camera overlooking Sector 4 |
+| `CCTV-B` | CCTV Camera B | `EVIDENCE` | YES | YES | `8002` | `50052` | Dome camera monitoring emergency exit corridor |
+| `SECURITY-A` | Security Sensor Hub | `SECURITY` | YES | NO | `8000` | `50051` | IoT sensor gateway aggregating IR tripwires |
+| `MOBILE-A` | Mobile Patrol Unit A | `MOBILE` | YES | YES | `8003` | `50053` | Wearable body-camera and acoustic scanner |
 
 ---
 
-## Technology Stack
+## 4. Local Evidence Ownership & Shared Logical Incident
 
-- **Frontend:** Next.js, React, TypeScript, App Router, CSS Modules (Turbopack pure selectors)
-- **Backend:** Python, FastAPI, Pydantic, asyncio, websockets
-- **Database:** Neon PostgreSQL, SQLAlchemy async engine, asyncpg, Alembic migrations
-- **Messaging:** RabbitMQ (aio-pika), topic exchange `echovault.events`
-- **RPC:** gRPC (grpcio), protobuf contract at `proto/echovault/node.proto`
-- **Real-time & P2P:** FastAPI WebSockets (`/ws/events` for UI stream, `/ws/peer` for P2P mesh)
-- **Infrastructure:** Docker and Docker Compose
+- **Local Ownership**: Evidence is strictly owned by the capturing node (`EV-001` owned by `CCTV-A`, `EV-002` by `CCTV-B`, etc.). Nodes maintain independent evidence stores.
+- **Shared Logical Incident**: Incident `INC-000001` ("Restricted Area Intrusion", Severity: HIGH, Status: OPEN) links multi-node observations into a single investigation context.
+- **Remote Access via gRPC**: To view evidence owned by another node, an investigator triggers an inter-node gRPC request (`GetEvidence`), measuring real-time round-trip latency.
 
 ---
 
-## Backend Endpoints
+## 5. One-Command Quickstart
 
-### Health
-- `GET /` — service status
-- `GET /health` — overall system health (Database, RabbitMQ, gRPC, WebSocket, P2P)
-- `GET /health/database` — Neon connectivity check (HTTP 503 on error)
-- `GET /health/messaging` — RabbitMQ connectivity check (HTTP 503 on error)
-- `GET /health/websocket` — active browser WebSocket connection count
-- `GET /health/p2p` — active direct P2P connected peers count
-
-### Node Registry
-- `GET /api/v1/node/self` — this process's configured identity (HTTP, gRPC, and P2P addresses)
-- `POST /api/v1/node/self/register` — idempotently register this process
-- `POST /api/v1/nodes` — register a node
-- `GET /api/v1/nodes` — discover nodes
-- `POST /api/v1/nodes/{node_id}/heartbeat` — update liveness (`ONLINE`)
-
-### Peer-to-Peer (Part 8)
-- `WS /ws/peer` — dedicated node-to-node point-to-point WebSocket
-- `GET /api/v1/peers` — list discovered nodes and active P2P link states
-- `POST /api/v1/peers/{node_id}/connect` — establish direct P2P link with handshake verification
-- `POST /api/v1/peers/{node_id}/disconnect` — terminate direct P2P link
-- `POST /api/v1/peers/{node_id}/ping` — transmit direct PING and measure RTT in ms
-- `POST /api/v1/peers/{node_id}/message` — send direct P2P text message
-- `POST /api/v1/peers/{node_id}/announce/evidence/{evidence_id}` — announce local evidence directly
-- `POST /api/v1/peers/{node_id}/announce/incident/{incident_id}` — announce local incident directly
-- `GET /api/v1/peers/messages` — query received P2P message inbox with status filters
-
-### Evidence & Incidents
-- `POST /api/v1/evidence` — create node-owned evidence observation
-- `GET /api/v1/evidence` — list local evidence
-- `POST /api/v1/incidents` — create incident
-- `GET /api/v1/incidents` — list incidents
-
-### Remote (gRPC) & Messaging (RabbitMQ)
-- `GET /api/v1/remote/nodes/{node_id}/status` — query remote status via gRPC
-- `GET /api/v1/messaging/messages` — query RabbitMQ received message history
-
----
-
-## Running Locally
-
-### Docker Setup
+### 1. Launch Complete Stack with Docker
 ```powershell
 docker compose up --build
 ```
 
-Nodes are exposed as:
-- **Coordinator**: HTTP `8000`, gRPC `50051`, P2P `8000`
-- **Node A (CCTV-A)**: HTTP `8001`, gRPC `50051`, P2P `8001`
-- **Node B (CCTV-B)**: HTTP `8002`, gRPC `50052`, P2P `8002`
-- **Frontend Dashboard**: `http://localhost:3000`
+**Services Running:**
+- **Coordinator Backend**: `http://localhost:8000`
+- **Node A (CCTV-A)**: `http://localhost:8001`
+- **Node B (CCTV-B)**: `http://localhost:8002`
+- **RabbitMQ Management**: `http://localhost:15672` (guest/guest)
+- **Frontend Command Center**: `http://localhost:3000`
 
-### Register & Heartbeat Nodes
+### 2. Seed Demo Scenario
 ```powershell
-# Register nodes
-Invoke-RestMethod -Uri "http://localhost:8000/api/v1/node/self/register" -Method POST
-Invoke-RestMethod -Uri "http://localhost:8001/api/v1/node/self/register" -Method POST
-Invoke-RestMethod -Uri "http://localhost:8002/api/v1/node/self/register" -Method POST
-
-# Heartbeat nodes
-Invoke-RestMethod -Uri "http://localhost:8000/api/v1/nodes/node-docker-001/heartbeat" -Method POST
-Invoke-RestMethod -Uri "http://localhost:8001/api/v1/nodes/CCTV-A/heartbeat" -Method POST
-Invoke-RestMethod -Uri "http://localhost:8002/api/v1/nodes/CCTV-B/heartbeat" -Method POST
+python scripts/seed_demo.py
 ```
+*Or click **"🌱 Re-Seed Demo Environment"** on `http://localhost:3000/system`.*
 
 ---
 
-## Testing
+## 6. End-to-End Demonstration Sequence
+
+1. **Dashboard & Topology**: Open `http://localhost:3000/dashboard` to observe system metrics and the interactive network topology map.
+2. **Incident Command Center**: Open `http://localhost:3000/incidents/INC-000001` to view multi-node evidence with `LOCAL` vs `REMOTE` tags.
+3. **Synchronous gRPC Retrieval**: Click **"Fetch via gRPC"** on `EV-002` (owned by `CCTV-B`) to fetch remote metadata with measured latency (e.g. 12 ms).
+4. **Direct P2P Announcement**: In the P2P tool, select `CCTV-B` and send a direct alert over `/ws/peer` without RabbitMQ in the message path.
+5. **Live WebRTC Video**: Click **"📹 Live Feed"** on `CCTV-A` to open `http://localhost:3000/live?nodeId=CCTV-A` and stream live 25 FPS video with real-time updating timestamp ticker and audio tone.
+6. **Fault Simulation & Independence**: Navigate to `http://localhost:3000/system`, simulate taking `CCTV-B` OFFLINE, and observe how `CCTV-A`, RabbitMQ, and WebRTC remain operational.
+
+---
+
+## 7. Testing
 
 ```powershell
 cd services/node
 
-# P2P tests only
-python -m pytest tests/test_p2p_protocol.py tests/test_p2p_manager.py tests/test_p2p_idempotency.py tests/test_p2p_endpoint.py -v
-
-# Full suite (86 tests)
+# Run full test suite (104 tests)
 python -m pytest tests/ -v
 ```
 
+**Test Coverage Summary:**
+- Unit & Model tests (Node, Evidence, Incident): 42 tests
+- gRPC RPC Server & Client tests: 8 tests
+- RabbitMQ Publisher & Consumer tests: 12 tests
+- WebSocket Stream & Filtering tests: 24 tests
+- P2P Protocol & Idempotency tests: 18 tests
+- WebRTC Tracks & Signaling tests: 14 tests
+- End-to-End Workflow tests: 4 tests
+- **Total: 104 passed, 1 skipped (DB integration), 0 failed.**
+
 ---
 
-## Future Development
-1. Part 9 $\rightarrow$ WebRTC for direct media streaming (using P2P WebSocket control channel for signaling).
-2. Part 10 $\rightarrow$ Lamport & Vector Clocks for causal ordering.
-3. Part 11 $\rightarrow$ Distributed Election & Mutual Exclusion algorithms.
-4. Part 12 $\rightarrow$ Incident Reconstruction Timeline & Global Map Dashboard.
+## 8. Documentation Suite
+
+- [`docs/architecture.md`](file:///c:/7th%20Semester/Distributed%20Systems/FA-1-Project/docs/architecture.md) — Technical architecture, node boundaries, and communication topologies.
+- [`docs/fa1-syllabus-mapping.md`](file:///c:/7th%20Semester/Distributed%20Systems/FA-1-Project/docs/fa1-syllabus-mapping.md) — Direct mapping to Unit 1 and Unit 2 syllabus topics.
+- [`docs/design-decisions.md`](file:///c:/7th%20Semester/Distributed%20Systems/FA-1-Project/docs/design-decisions.md) — Architectural justifications and trade-off analyses.
+- [`docs/fa1-demo-script.md`](file:///c:/7th%20Semester/Distributed%20Systems/FA-1-Project/docs/fa1-demo-script.md) — 11-step evaluation walkthrough script with examiner talking points.
+- [`docs/fa1-viva.md`](file:///c:/7th%20Semester/Distributed%20Systems/FA-1-Project/docs/fa1-viva.md) — 20+ examination viva questions and comprehensive model answers.
+
+---
+
+## 9. Limitations & FA-2 Roadmap
+
+### FA-1 Limitations
+- Synthetic video/audio generators (`DemoVideoTrack`, `DemoAudioTrack`) are used to ensure reproducible testing in Docker.
+- Clock synchronization and global event ordering are based on server wall-clock timestamps rather than logical/vector clocks.
+
+### Future FA-2 Roadmap
+- **Unit 3**: Lamport timestamps, Vector clocks, Berkeley/NTP clock synchronization, Bully/Ring election algorithms, Ricart-Agrawala distributed mutual exclusion.
+- **Unit 4**: Distributed file system integration (IPFS/NFS), distributed transactions (2PC/3PC), and consensus algorithms (Raft).

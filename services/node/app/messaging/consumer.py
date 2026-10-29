@@ -8,7 +8,7 @@ Lifecycle:
 Message processing pipeline (updated Part 7):
   1. Receive raw AMQP message
   2. Parse MessageEnvelope (JSON)
-  3. Idempotency check — look up message_id in received_messages table
+    3. Idempotency check — look up (consumer_node_id, message_id) in received_messages
      → duplicate: record IGNORED status, ACK, return
   4. Self-origin check — source_node_id == local node_id
      → record IGNORED status, ACK, return
@@ -80,7 +80,10 @@ async def _save_received(
     from sqlalchemy import select
 
     result = await session.execute(
-        select(ReceivedMessage).where(ReceivedMessage.message_id == envelope.message_id)
+        select(ReceivedMessage).where(
+            ReceivedMessage.consumer_node_id == settings.node_id,
+            ReceivedMessage.message_id == envelope.message_id,
+        )
     )
     existing = result.scalar_one_or_none()
     if existing is not None:
@@ -91,6 +94,7 @@ async def _save_received(
     else:
         record = ReceivedMessage(
             message_id=envelope.message_id,
+            consumer_node_id=settings.node_id,
             source_node_id=envelope.source_node_id,
             event_type=envelope.event_type,
             routing_key=routing_key,
@@ -145,17 +149,15 @@ async def process_message(message: aio_pika.abc.AbstractIncomingMessage) -> None
         "routing_key": routing_key,
     }
 
-    if async_session_factory is None:
-        logger.warning("No DB session factory — cannot persist message %s", envelope.message_id)
-        await message.ack()
-        return
-
     async with async_session_factory() as session:
         # ── 2. Idempotency check ──────────────────────────────────────────────
         from sqlalchemy import select
 
         existing = await session.execute(
-            select(ReceivedMessage).where(ReceivedMessage.message_id == envelope.message_id)
+            select(ReceivedMessage).where(
+                ReceivedMessage.consumer_node_id == settings.node_id,
+                ReceivedMessage.message_id == envelope.message_id,
+            )
         )
         if existing.scalar_one_or_none() is not None:
             logger.info("Duplicate message_id — ignoring: %s", envelope.message_id)

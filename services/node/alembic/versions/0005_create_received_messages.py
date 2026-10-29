@@ -5,8 +5,8 @@ Revises: 0004_add_grpc_address
 Create Date: 2026-08-22
 
 Adds the local message inbox for RabbitMQ-consumed events (Part 6).
-The unique constraint on message_id enforces idempotency —
-duplicate deliveries are detected without processing the message twice.
+The later inbox migration scopes idempotency to (consumer_node_id, message_id),
+because all Docker nodes share PostgreSQL while maintaining separate queues.
 """
 from typing import Sequence, Union
 

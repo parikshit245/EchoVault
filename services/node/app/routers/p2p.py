@@ -193,6 +193,28 @@ async def connect_peer(
         raise HTTPException(status_code=502, detail=f"Failed to connect to peer '{node_id}': {exc}") from exc
 
 
+async def _ensure_connected(node_id: str, session: AsyncSession) -> None:
+    conn = peer_manager.get_peer(node_id)
+    if conn is not None and conn.state == PeerConnectionState.CONNECTED:
+        return
+
+    res = await session.execute(select(Node).where(Node.node_id == node_id))
+    target = res.scalar_one_or_none()
+    if target is None:
+        raise HTTPException(status_code=404, detail=f"Node '{node_id}' not found in registry")
+
+    target_host = target.p2p_host or target.host
+    target_port = target.p2p_port or target.port
+
+    try:
+        await peer_manager.connect_to_peer(node_id, target_host, target_port)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Peer '{node_id}' is not connected and connection attempt failed: {exc}",
+        ) from exc
+
+
 @router.post("/api/v1/peers/{node_id}/disconnect")
 async def disconnect_peer(node_id: str) -> dict[str, str]:
     """Explicitly tear down direct P2P link to target node."""
@@ -201,8 +223,12 @@ async def disconnect_peer(node_id: str) -> dict[str, str]:
 
 
 @router.post("/api/v1/peers/{node_id}/ping", response_model=PingResponse)
-async def ping_peer_endpoint(node_id: str) -> PingResponse:
+async def ping_peer_endpoint(
+    node_id: str,
+    session: AsyncSession = Depends(get_db_session),
+) -> PingResponse:
     """Send direct P2P PING to peer and return measured round-trip latency in ms."""
+    await _ensure_connected(node_id, session)
     try:
         rtt_ms = await peer_manager.ping_peer(node_id, timeout=5.0)
         return PingResponse(node_id=node_id, rtt_ms=rtt_ms, status="PONG")
@@ -218,8 +244,10 @@ async def ping_peer_endpoint(node_id: str) -> PingResponse:
 async def send_direct_message(
     node_id: str,
     payload: DirectMessageRequest,
+    session: AsyncSession = Depends(get_db_session),
 ) -> dict[str, Any]:
     """Send a direct P2P message to target peer without intermediate broker."""
+    await _ensure_connected(node_id, session)
     msg_payload = PeerMessagePayload(
         text=payload.text,
         metadata=payload.metadata,
@@ -252,6 +280,7 @@ async def announce_evidence(
     session: AsyncSession = Depends(get_db_session),
 ) -> dict[str, Any]:
     """Directly announce local evidence metadata to a target connected peer."""
+    await _ensure_connected(node_id, session)
     res = await session.execute(select(Evidence).where(Evidence.evidence_id == evidence_id))
     evidence = res.scalar_one_or_none()
     if evidence is None:
@@ -293,6 +322,7 @@ async def announce_incident(
     session: AsyncSession = Depends(get_db_session),
 ) -> dict[str, Any]:
     """Directly announce local incident metadata to a target connected peer."""
+    await _ensure_connected(node_id, session)
     res = await session.execute(select(Incident).where(Incident.incident_id == incident_id))
     incident = res.scalar_one_or_none()
     if incident is None:

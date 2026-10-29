@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import HeaderNav from "../../components/HeaderNav";
 import styles from "./page.module.css";
 
 type Incident = {
@@ -83,34 +84,24 @@ export default function IncidentsPage() {
   }
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <Link href="/" className={styles.logo}>
-          EV
-        </Link>
-        <span>INCIDENT SERVICE / 04</span>
-        <div style={{ display: "flex", gap: "1.2rem" }}>
-          <Link href="/peers">Peers</Link>
-          <Link href="/messaging">Messaging</Link>
-          <Link href="/evidence">Evidence</Link>
-          <Link href="/nodes">Nodes</Link>
-        </div>
-      </header>
+      <HeaderNav />
       <section className={styles.hero}>
-        <p className={styles.kicker}>SHARED LOGICAL CONTEXT</p>
-        <h1>Incidents</h1>
+        <p className={styles.kicker}>INVESTIGATION WORKSPACE</p>
+        <h1>Cases</h1>
         <p>
-          Connect local observations without transferring evidence ownership.
+          Review active investigations, preserve source ownership, and follow
+          every observation from detection to resolution.
         </p>
       </section>
       <section className={styles.content}>
         <div className={styles.panel}>
           <div className={styles.heading}>
-            <h2>Create incident</h2>
-            <span>CREATOR IS SERVER NODE</span>
+            <h2>Open a case</h2>
+            <span>NEW INVESTIGATION</span>
           </div>
           <form className={styles.form} onSubmit={(e) => void create(e)}>
             <label>
-              Title
+              Case title
               <input
                 name="title"
                 placeholder="Restricted Area Intrusion"
@@ -138,11 +129,11 @@ export default function IncidentsPage() {
               <input name="started_at" type="datetime-local" />
             </label>
             <label className={styles.wide}>
-              Description
+              What happened?
               <textarea name="description" rows={2} />
             </label>
             <label className={styles.wide}>
-              Location JSON
+              Location details
               <textarea
                 name="location"
                 rows={2}
@@ -156,8 +147,8 @@ export default function IncidentsPage() {
         </div>
         <div className={styles.panel}>
           <div className={styles.heading}>
-            <h2>Incident register</h2>
-            <span>{items.length.toString().padStart(2, "0")} INCIDENTS</span>
+            <h2>Case register</h2>
+            <span>{items.length.toString().padStart(2, "0")} CASES</span>
           </div>
           {error ? (
             <p className={styles.error}>{error}</p>

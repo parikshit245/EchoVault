@@ -36,6 +36,10 @@ services:
       GRPC_TIMEOUT_SECONDS: 5
       P2P_HOST: backend
       P2P_PORT: 8000
+      MEDIA_MODE: demo
+      SUPPORTS_VIDEO: "true"
+      SUPPORTS_AUDIO: "true"
+      WEBRTC_STUN_SERVER: stun:stun.l.google.com:19302
       STORAGE_DIR: /app/storage/evidence
       MAX_UPLOAD_SIZE_MB: 50
       RABBITMQ_HOST: rabbitmq
@@ -53,6 +57,17 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   node-a:
     build:
@@ -74,6 +89,11 @@ services:
       GRPC_TIMEOUT_SECONDS: 5
       P2P_HOST: node-a
       P2P_PORT: 8001
+      MEDIA_MODE: demo
+      SUPPORTS_VIDEO: "true"
+      SUPPORTS_AUDIO: "true"
+      WEBRTC_STUN_SERVER: stun:stun.l.google.com:19302
+      AIOICE_ICE_FORCE_MDNS: "0"
       STORAGE_DIR: /app/storage/evidence
       MAX_UPLOAD_SIZE_MB: 50
       RABBITMQ_HOST: rabbitmq
@@ -92,6 +112,8 @@ services:
       - "50051:50051"
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      backend:
         condition: service_healthy
 
   node-b:
@@ -114,6 +136,11 @@ services:
       GRPC_TIMEOUT_SECONDS: 5
       P2P_HOST: node-b
       P2P_PORT: 8002
+      MEDIA_MODE: demo
+      SUPPORTS_VIDEO: "true"
+      SUPPORTS_AUDIO: "true"
+      WEBRTC_STUN_SERVER: stun:stun.l.google.com:19302
+      AIOICE_ICE_FORCE_MDNS: "0"
       STORAGE_DIR: /app/storage/evidence
       MAX_UPLOAD_SIZE_MB: 50
       RABBITMQ_HOST: rabbitmq
@@ -132,6 +159,8 @@ services:
       - "50052:50052"
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      backend:
         condition: service_healthy
 
   frontend:

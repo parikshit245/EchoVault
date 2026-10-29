@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import HeaderNav from "../../components/HeaderNav";
 import { useEventStream } from "../../hooks/useEventStream";
 import styles from "./page.module.css";
 
@@ -168,20 +169,7 @@ export default function NodesPage() {
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <Link href="/" className={styles.logo}>
-          EV
-        </Link>
-        <span>NODE REGISTRY / 02</span>
-        <div className={styles.headerRight}>
-          <WsStatusDot status={wsStatus} />
-          <Link href="/peers">Peers</Link>
-          <Link href="/messaging">Messaging</Link>
-          <Link href="/incidents">Incidents</Link>
-          <Link href="/evidence">Evidence</Link>
-          <Link href="/">Home</Link>
-        </div>
-      </header>
+      <HeaderNav />
 
       <section className={styles.hero}>
         <p className={styles.kicker}>DISCOVERY LAYER</p>

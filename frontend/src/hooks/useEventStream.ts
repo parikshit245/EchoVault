@@ -150,6 +150,7 @@ export function useEventStream(
   );
 
   const ping = useCallback(() => sendCommand({ type: "ping" }), [sendCommand]);
+  const connectRef = useRef<() => void>(() => undefined);
 
   const connect = useCallback(() => {
     if (!mountedRef.current || !enabled) return;
@@ -217,12 +218,13 @@ export function useEventStream(
       const delay = Math.min(backoffRef.current, MAX_BACKOFF_MS);
       backoffRef.current = Math.min(backoffRef.current * 2, MAX_BACKOFF_MS);
       reconnectTimerRef.current = setTimeout(() => {
-        if (mountedRef.current) connect();
+        if (mountedRef.current) connectRef.current();
       }, delay);
     };
   }, [enabled, maxEvents]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    connectRef.current = connect;
     mountedRef.current = true;
     if (enabled) connect();
 

@@ -36,6 +36,13 @@ class Settings(BaseSettings):
     p2p_port: int = 8000
     p2p_reconnect_max_backoff: int = 30
 
+    # WebRTC Multimedia Streaming (Part 9)
+    webrtc_stun_server: str = "stun:stun.l.google.com:19302"
+    media_mode: str = "demo"  # "demo" or "camera"
+    supports_video: bool = True
+    supports_audio: bool = True
+    webrtc_session_timeout_seconds: int = 45
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 

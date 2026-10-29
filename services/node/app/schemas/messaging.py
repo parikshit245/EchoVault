@@ -15,6 +15,7 @@ class ReceivedMessageResponse(BaseModel):
 
     id: Any  # UUID — serialised as string in JSON
     message_id: str
+    consumer_node_id: str
     source_node_id: str
     event_type: str
     routing_key: str
