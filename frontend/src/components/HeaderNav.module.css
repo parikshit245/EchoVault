@@ -3,9 +3,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 2rem;
-  background: rgba(10, 15, 26, 0.85);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(14, 165, 233, 0.16);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -34,11 +34,11 @@
 
 .brandIcon {
   font-size: 1.25rem;
-  color: #00d2ff;
+  color: #0284c7;
 }
 
 .brandTitle {
-  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+  background: linear-gradient(135deg, #0f2740 0%, #0284c7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -48,9 +48,9 @@
   font-weight: 700;
   padding: 0.18rem 0.45rem;
   border-radius: 4px;
-  background: rgba(92, 225, 170, 0.12);
-  color: #7ee8bc;
-  border: 1px solid rgba(92, 225, 170, 0.3);
+  background: rgba(22, 163, 74, 0.12);
+  color: #15803d;
+  border: 1px solid rgba(22, 163, 74, 0.3);
   letter-spacing: 0.08em;
 }
 
@@ -58,10 +58,10 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(14, 165, 233, 0.06);
   padding: 0.25rem 0.4rem;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(14, 165, 233, 0.12);
 }
 
 .navLink {
@@ -72,21 +72,21 @@
   border-radius: 7px;
   font-size: 0.82rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: #5b7089;
   text-decoration: none;
   transition: all 0.18s ease;
 }
 
 .navLink:hover {
-  color: #f8fafc;
-  background: rgba(255, 255, 255, 0.06);
+  color: #0f2740;
+  background: rgba(14, 165, 233, 0.12);
 }
 
 .activeNavLink {
-  color: #9eeecb !important;
-  background: rgba(92, 225, 170, 0.11) !important;
-  border: 1px solid rgba(92, 225, 170, 0.25);
-  box-shadow: 0 0 12px rgba(92, 225, 170, 0.1);
+  color: #15803d !important;
+  background: rgba(22, 163, 74, 0.11) !important;
+  border: 1px solid rgba(22, 163, 74, 0.25);
+  box-shadow: 0 0 12px rgba(22, 163, 74, 0.1);
 }
 
 .linkIcon {
@@ -107,9 +107,9 @@
   border-radius: 7px;
   font-size: 0.8rem;
   font-weight: 700;
-  background: rgba(239, 68, 68, 0.15);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(220, 38, 38, 0.15);
+  color: #b91c1c;
+  border: 1px solid rgba(220, 38, 38, 0.35);
   text-decoration: none;
   animation: pulseBorder 2.5s infinite ease-in-out;
   transition: all 0.2s ease;
@@ -121,23 +121,23 @@
   height: 7px;
   margin-right: 0.25rem;
   border-radius: 50%;
-  background: #ff687c;
-  box-shadow: 0 0 8px #ff687c;
+  background: #dc2626;
+  box-shadow: 0 0 8px #dc2626;
 }
 
 .missionBtn:hover {
-  background: rgba(239, 68, 68, 0.25);
+  background: rgba(220, 38, 38, 0.25);
   color: #fff;
-  border-color: #ef4444;
+  border-color: #dc2626;
 }
 
 @keyframes pulseBorder {
   0%,
   100% {
-    box-shadow: 0 0 0 rgba(239, 68, 68, 0);
+    box-shadow: 0 0 0 rgba(220, 38, 38, 0);
   }
   50% {
-    box-shadow: 0 0 14px rgba(239, 68, 68, 0.35);
+    box-shadow: 0 0 14px rgba(220, 38, 38, 0.35);
   }
 }
 

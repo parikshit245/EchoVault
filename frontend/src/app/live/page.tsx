@@ -325,14 +325,14 @@ function LiveFeedContent() {
                 <tbody>
                   {pastSessions.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className={styles.td} style={{ textAlign: "center", color: "#6e8299" }}>
+                      <td colSpan={6} className={styles.td} style={{ textAlign: "center", color: "#5b7089" }}>
                         No WebRTC sessions recorded yet.
                       </td>
                     </tr>
                   ) : (
                     pastSessions.map((s) => (
                       <tr key={s.session_id}>
-                        <td className={styles.td} style={{ fontFamily: "monospace", color: "#00d2ff" }}>
+                        <td className={styles.td} style={{ fontFamily: "monospace", color: "#0284c7" }}>
                           {s.session_id}
                         </td>
                         <td className={styles.td}>{s.source_node_id}</td>

@@ -5,8 +5,8 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #080b12;
-  color: #e8edf5;
+  background: #f5faff;
+  color: #0f2740;
 }
 
 .glow {
@@ -14,7 +14,7 @@
   width: 42rem;
   height: 42rem;
   border-radius: 50%;
-  background: #1f8fff;
+  background: #0284c7;
   filter: blur(140px);
   opacity: 0.12;
   transform: translate(28%, -20%);
@@ -27,16 +27,16 @@
   flex-direction: column;
   justify-content: space-between;
   padding: clamp(2rem, 7vw, 6rem);
-  border: 1px solid #202b3d;
-  background: linear-gradient(145deg, #101722 0%, #0b1019 65%, #0b111c 100%);
-  box-shadow: 0 32px 90px #0008;
+  border: 1px solid #e0f2fe;
+  background: linear-gradient(145deg, #f0f9ff 0%, #f0f9ff 65%, #f0f9ff 100%);
+  box-shadow: 0 32px 90px rgba(14, 116, 144, 0.16);
 }
 .header,
 .footer {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  color: #75849a;
+  color: #5b7089;
   font-family: var(--font-geist-mono);
   font-size: 0.68rem;
   letter-spacing: 0.14em;
@@ -46,8 +46,8 @@
   width: 2.6rem;
   height: 2.6rem;
   place-items: center;
-  border: 1px solid #4ba8ff;
-  color: #7bc3ff;
+  border: 1px solid #0284c7;
+  color: #0284c7;
   font-weight: 700;
   letter-spacing: 0;
 }
@@ -60,14 +60,14 @@
 }
 .kicker {
   margin-bottom: 1.25rem;
-  color: #53b3ff;
+  color: #0284c7;
   font-family: var(--font-geist-mono);
   font-size: 0.7rem;
   letter-spacing: 0.2em;
 }
 .intro h1 {
   margin: 0;
-  color: #f5f8fc;
+  color: #0f2740;
   font-size: clamp(3.7rem, 10vw, 7.8rem);
   font-weight: 600;
   letter-spacing: -0.08em;
@@ -75,7 +75,7 @@
 }
 .subtitle {
   margin-top: 2rem;
-  color: #aebdce;
+  color: #0f2740;
   font-size: clamp(1.2rem, 2.2vw, 1.7rem);
   line-height: 1.45;
   letter-spacing: -0.025em;
@@ -85,7 +85,7 @@
   align-items: center;
   gap: 0.7rem;
   margin-top: 3.5rem;
-  color: #c8d5e4;
+  color: #0284c7;
   font-family: var(--font-geist-mono);
   font-size: 0.78rem;
 }
@@ -93,11 +93,11 @@
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 50%;
-  background: #4ce09a;
-  box-shadow: 0 0 14px #4ce09a;
+  background: #15803d;
+  box-shadow: 0 0 14px #15803d;
 }
 .footer {
-  border-top: 1px solid #202b3d;
+  border-top: 1px solid #e0f2fe;
   padding-top: 1.25rem;
 }
 @media (max-width: 600px) {

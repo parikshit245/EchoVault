@@ -168,6 +168,7 @@ class Unit3State:
         return {
             "leader": self.leader,
             "lamport_clock": self.clock,
+            "coordinator_time_ms": time.time() * 1000,
             "nodes": list(self.nodes.values()),
             "lock": {
                 "owner_node_id": self.lock_owner,

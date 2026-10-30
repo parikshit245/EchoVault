@@ -1,8 +1,8 @@
 .page {
   min-height: 100vh;
   padding: 2rem clamp(1.25rem, 5vw, 5rem);
-  background: #080b12;
-  color: #e8edf5;
+  background: #f5faff;
+  color: #0f2740;
 }
 .header {
   display: flex;
@@ -10,7 +10,7 @@
   margin: 0 auto;
   align-items: center;
   justify-content: space-between;
-  color: #75849a;
+  color: #5b7089;
   font: 0.68rem var(--font-geist-mono);
   letter-spacing: 0.14em;
 }
@@ -23,8 +23,8 @@
   width: 2.5rem;
   height: 2.5rem;
   place-items: center;
-  border: 1px solid #4ba8ff;
-  color: #7bc3ff;
+  border: 1px solid #0284c7;
+  color: #0284c7;
   font-weight: 700;
   letter-spacing: 0;
 }
@@ -39,23 +39,23 @@
 }
 .kicker,
 .panelHeading span {
-  color: #53b3ff;
+  color: #0284c7;
   font: 0.7rem var(--font-geist-mono);
   letter-spacing: 0.2em;
 }
 .hero h1 {
   margin: 0.8rem 0 1rem;
-  color: #f5f8fc;
+  color: #0f2740;
   font-size: clamp(3.5rem, 8vw, 7rem);
   letter-spacing: -0.08em;
   line-height: 0.9;
 }
 .hero p:last-child {
-  color: #aebdce;
+  color: #0f2740;
   font-size: 1.15rem;
 }
 .hero strong {
-  color: #53b3ff;
+  color: #0284c7;
   font-family: var(--font-geist-mono);
 }
 .content {
@@ -64,8 +64,8 @@
   gap: 1.25rem;
 }
 .panel {
-  border: 1px solid #202b3d;
-  background: #101722;
+  border: 1px solid #e0f2fe;
+  background: #f0f9ff;
   padding: 1.5rem;
 }
 .listPanel {
@@ -77,7 +77,7 @@
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid #202b3d;
+  border-bottom: 1px solid #e0f2fe;
   padding-bottom: 1rem;
 }
 .panelHeading h2 {
@@ -92,7 +92,7 @@
 .form label {
   display: grid;
   gap: 0.45rem;
-  color: #8999ad;
+  color: #5b7089;
   font: 0.7rem var(--font-geist-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -101,10 +101,10 @@
 .form select,
 .form textarea {
   width: 100%;
-  border: 1px solid #2a3a50;
+  border: 1px solid #0284c7;
   border-radius: 0;
-  background: #0b111b;
-  color: #e8edf5;
+  background: #f0f9ff;
+  color: #0f2740;
   padding: 0.75rem;
   font:
     0.9rem Arial,
@@ -117,7 +117,7 @@
 .form input:focus,
 .form select:focus,
 .form textarea:focus {
-  border-color: #53b3ff;
+  border-color: #0284c7;
 }
 .wide,
 .form button {
@@ -126,8 +126,8 @@
 .form button {
   cursor: pointer;
   border: 0;
-  background: #4ba8ff;
-  color: #07101b;
+  background: #0284c7;
+  color: #f0f9ff;
   padding: 0.85rem;
   font-weight: 700;
 }
@@ -145,14 +145,14 @@
   font-size: 0.85rem;
 }
 .tableWrap th {
-  color: #75849a;
+  color: #5b7089;
   font: 0.65rem var(--font-geist-mono);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 .tableWrap th,
 .tableWrap td {
-  border-bottom: 1px solid #202b3d;
+  border-bottom: 1px solid #e0f2fe;
   padding: 1rem 0.75rem;
   white-space: nowrap;
 }
@@ -162,19 +162,19 @@
 }
 .tableWrap td small {
   margin-top: 0.3rem;
-  color: #75849a;
+  color: #5b7089;
   font-size: 0.75rem;
 }
 .tableWrap a {
-  color: #53b3ff;
+  color: #0284c7;
 }
 .message,
 .error {
-  color: #aebdce;
+  color: #0f2740;
   padding: 1rem 0;
 }
 .error {
-  color: #ff9ba2;
+  color: #dc2626;
 }
 @media (max-width: 900px) {
   .content {

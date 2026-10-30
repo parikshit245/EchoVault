@@ -309,7 +309,7 @@ export default function IncidentDetails({
               <div>
                 <dt>Status</dt>
                 <dd>
-                  <span style={{ color: "#38bdf8", fontWeight: 700 }}>{incident.status}</span>
+                  <span style={{ color: "#0284c7", fontWeight: 700 }}>{incident.status}</span>
                 </dd>
               </div>
               <div>
@@ -329,18 +329,18 @@ export default function IncidentDetails({
             </dl>
 
             {/* Direct P2P Alert Tool */}
-            <div style={{ marginTop: "1.5rem", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "1rem" }}>
+            <div style={{ marginTop: "1.5rem", borderTop: "1px solid rgba(14, 165, 233, 0.16)", paddingTop: "1rem" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                <h3 style={{ fontSize: "0.85rem", color: "#00d2ff", margin: 0 }}>
+                <h3 style={{ fontSize: "0.85rem", color: "#0284c7", margin: 0 }}>
                   ⚡ Direct P2P Tactical Dispatch
                 </h3>
-                <span style={{ fontSize: "0.68rem", color: "#94a3b8" }}>Mesh Channel: /ws/peer</span>
+                <span style={{ fontSize: "0.68rem", color: "#5b7089" }}>Mesh Channel: /ws/peer</span>
               </div>
               <div style={{ display: "flex", gap: "0.6rem" }}>
                 <select
                   style={{
-                    background: "rgba(5,8,14,0.8)",
-                    border: "1px solid rgba(255,255,255,0.15)",
+                    background: "rgba(255, 255, 255, 0.8)",
+                    border: "1px solid rgba(14, 165, 233, 0.3)",
                     color: "#fff",
                     padding: "0.4rem 0.6rem",
                     borderRadius: "6px",
@@ -358,7 +358,7 @@ export default function IncidentDetails({
                 </select>
                 <button
                   style={{
-                    background: "linear-gradient(135deg, #00d2ff 0%, #0072ff 100%)",
+                    background: "linear-gradient(135deg, #0284c7 0%, #0284c7 100%)",
                     border: "none",
                     color: "#ffffff",
                     padding: "0.4rem 0.9rem",
@@ -374,7 +374,7 @@ export default function IncidentDetails({
                 </button>
               </div>
               {p2pResult && (
-                <div style={{ fontSize: "0.78rem", marginTop: "0.5rem", color: p2pResult.startsWith("✓") ? "#4ade80" : "#f87171" }}>
+                <div style={{ fontSize: "0.78rem", marginTop: "0.5rem", color: p2pResult.startsWith("✓") ? "#15803d" : "#dc2626" }}>
                   {p2pResult}
                 </div>
               )}
@@ -385,7 +385,7 @@ export default function IncidentDetails({
           <div className={`${styles.panel} ${styles.activityPanel}`}>
             <div className={styles.heading}>
               <h2>Live Distributed Event Audit</h2>
-              <span style={{ fontSize: "0.7rem", color: "#94a3b8" }}>AMQP &amp; WebSocket</span>
+              <span style={{ fontSize: "0.7rem", color: "#5b7089" }}>AMQP &amp; WebSocket</span>
             </div>
 
             <div style={{ display: "flex", gap: "0.4rem", marginBottom: "0.8rem" }}>
@@ -396,9 +396,9 @@ export default function IncidentDetails({
                     fontSize: "0.68rem",
                     padding: "0.2rem 0.5rem",
                     borderRadius: "4px",
-                    border: eventCategoryFilter === cat ? "1px solid #00d2ff" : "1px solid rgba(255,255,255,0.1)",
-                    background: eventCategoryFilter === cat ? "rgba(0,210,255,0.2)" : "rgba(255,255,255,0.04)",
-                    color: eventCategoryFilter === cat ? "#00d2ff" : "#94a7c0",
+                    border: eventCategoryFilter === cat ? "1px solid #0284c7" : "1px solid rgba(14, 165, 233, 0.2)",
+                    background: eventCategoryFilter === cat ? "rgba(14, 165, 233, 0.2)" : "rgba(14, 165, 233, 0.08)",
+                    color: eventCategoryFilter === cat ? "#0284c7" : "#5b7089",
                     cursor: "pointer",
                     fontWeight: 700,
                   }}
@@ -441,18 +441,18 @@ export default function IncidentDetails({
                       justifyContent: "space-between",
                       alignItems: "center",
                       padding: "0.6rem 0",
-                      borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+                      borderBottom: "1px solid rgba(14, 165, 233, 0.1)",
                     }}
                   >
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        <strong style={{ color: "#00d2ff", fontSize: "0.9rem" }}>{node.node_id}</strong>
+                        <strong style={{ color: "#0284c7", fontSize: "0.9rem" }}>{node.node_id}</strong>
                         <span
                           style={{
                             fontSize: "0.7rem",
-                            color: "#8da2be",
+                            color: "#5b7089",
                             padding: "0.15rem 0.45rem",
-                            background: "rgba(255, 255, 255, 0.06)",
+                            background: "rgba(14, 165, 233, 0.12)",
                             borderRadius: "4px",
                             fontWeight: 700,
                           }}
@@ -460,7 +460,7 @@ export default function IncidentDetails({
                           {node.role} · {node.status}
                         </span>
                       </div>
-                      <span style={{ fontSize: "0.8rem", color: "#cbd5e1" }}>
+                      <span style={{ fontSize: "0.8rem", color: "#0f2740" }}>
                         {node.node_name}
                       </span>
                     </div>
@@ -469,10 +469,10 @@ export default function IncidentDetails({
                       style={{
                         fontSize: "0.75rem",
                         padding: "0.3rem 0.65rem",
-                        background: "rgba(0, 210, 255, 0.15)",
-                        border: "1px solid rgba(0, 210, 255, 0.4)",
+                        background: "rgba(14, 165, 233, 0.15)",
+                        border: "1px solid rgba(14, 165, 233, 0.4)",
                         borderRadius: "6px",
-                        color: "#00d2ff",
+                        color: "#0284c7",
                         textDecoration: "none",
                         fontWeight: 700,
                         whiteSpace: "nowrap",
@@ -495,26 +495,26 @@ export default function IncidentDetails({
             style={{
               margin: "1.5rem 0",
               padding: "1.2rem 1.6rem",
-              background: "linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(88, 28, 135, 0.25) 100%)",
-              border: "1px solid rgba(168, 85, 247, 0.5)",
+              background: "linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(14, 165, 233, 0.25) 100%)",
+              border: "1px solid rgba(14, 165, 233, 0.5)",
               borderRadius: "12px",
-              boxShadow: "0 8px 24px rgba(168, 85, 247, 0.2)",
+              boxShadow: "0 8px 24px rgba(14, 165, 233, 0.2)",
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.8rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}>
-                <span style={{ background: "#a855f7", color: "#fff", padding: "0.2rem 0.6rem", borderRadius: "4px", fontSize: "0.75rem", fontWeight: 800 }}>
+                <span style={{ background: "#7c3aed", color: "#fff", padding: "0.2rem 0.6rem", borderRadius: "4px", fontSize: "0.75rem", fontWeight: 800 }}>
                   gRPC / HTTP/2
                 </span>
-                <strong style={{ color: "#e9d5ff", fontSize: "1.05rem" }}>
+                <strong style={{ color: "#7c3aed", fontSize: "1.05rem" }}>
                   Synchronous Remote RPC: GetEvidence({rpcResult.evidence_id})
                 </strong>
               </div>
               <button
                 style={{
-                  background: "rgba(255,255,255,0.1)",
+                  background: "rgba(14, 165, 233, 0.2)",
                   border: "none",
-                  color: "#f3e8ff",
+                  color: "#7c3aed",
                   padding: "0.3rem 0.6rem",
                   borderRadius: "4px",
                   cursor: "pointer",
@@ -528,22 +528,22 @@ export default function IncidentDetails({
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "1rem" }}>
-              <div style={{ background: "rgba(0,0,0,0.3)", padding: "0.8rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <span style={{ fontSize: "0.7rem", color: "#c084fc", fontWeight: 700 }}>MEASURED LATENCY</span>
-                <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#4ade80" }}>{rpcResult.latency_ms} ms</div>
-                <small style={{ color: "#94a3b8", fontSize: "0.72rem" }}>Direct binary HTTP/2 Protobuf</small>
+              <div style={{ background: "rgba(14, 116, 144, 0.25)", padding: "0.8rem", borderRadius: "8px", border: "1px solid rgba(14, 165, 233, 0.12)" }}>
+                <span style={{ fontSize: "0.7rem", color: "#7c3aed", fontWeight: 700 }}>MEASURED LATENCY</span>
+                <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#15803d" }}>{rpcResult.latency_ms} ms</div>
+                <small style={{ color: "#5b7089", fontSize: "0.72rem" }}>Direct binary HTTP/2 Protobuf</small>
               </div>
 
-              <div style={{ background: "rgba(0,0,0,0.3)", padding: "0.8rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <span style={{ fontSize: "0.7rem", color: "#c084fc", fontWeight: 700 }}>TARGET NODE</span>
+              <div style={{ background: "rgba(14, 116, 144, 0.25)", padding: "0.8rem", borderRadius: "8px", border: "1px solid rgba(14, 165, 233, 0.12)" }}>
+                <span style={{ fontSize: "0.7rem", color: "#7c3aed", fontWeight: 700 }}>TARGET NODE</span>
                 <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#fff" }}>{rpcResult.node_id}</div>
-                <small style={{ color: "#94a3b8", fontSize: "0.72rem" }}>Owner of evidence storage</small>
+                <small style={{ color: "#5b7089", fontSize: "0.72rem" }}>Owner of evidence storage</small>
               </div>
 
-              <div style={{ background: "rgba(0,0,0,0.3)", padding: "0.8rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <span style={{ fontSize: "0.7rem", color: "#c084fc", fontWeight: 700 }}>INTEGRITY STATUS</span>
-                <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#38bdf8" }}>✓ SHA-256 Verified</div>
-                <small style={{ color: "#94a3b8", fontSize: "0.72rem" }}>Tamper-proof hash validated</small>
+              <div style={{ background: "rgba(14, 116, 144, 0.25)", padding: "0.8rem", borderRadius: "8px", border: "1px solid rgba(14, 165, 233, 0.12)" }}>
+                <span style={{ fontSize: "0.7rem", color: "#7c3aed", fontWeight: 700 }}>INTEGRITY STATUS</span>
+                <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0284c7" }}>✓ SHA-256 Verified</div>
+                <small style={{ color: "#5b7089", fontSize: "0.72rem" }}>Tamper-proof hash validated</small>
               </div>
             </div>
 
@@ -551,12 +551,12 @@ export default function IncidentDetails({
               style={{
                 margin: 0,
                 fontSize: "0.75rem",
-                background: "rgba(5,8,14,0.85)",
+                background: "rgba(255, 255, 255, 0.85)",
                 padding: "0.8rem",
                 borderRadius: "8px",
-                color: "#e2e8f0",
+                color: "#0f2740",
                 overflowX: "auto",
-                border: "1px solid rgba(255,255,255,0.08)",
+                border: "1px solid rgba(14, 165, 233, 0.16)",
               }}
             >
               {JSON.stringify(rpcResult.data, null, 2)}
@@ -588,16 +588,16 @@ export default function IncidentDetails({
                   {evidence.map((item) => (
                     <tr key={item.evidence_id}>
                       <td>
-                        <strong style={{ color: "#00d2ff" }}>{item.evidence_id}</strong>
+                        <strong style={{ color: "#0284c7" }}>{item.evidence_id}</strong>
                       </td>
                       <td>
                         <span
                           style={{
                             padding: "0.2rem 0.55rem",
                             borderRadius: "4px",
-                            background: "rgba(0, 210, 255, 0.12)",
-                            border: "1px solid rgba(0, 210, 255, 0.3)",
-                            color: "#00d2ff",
+                            background: "rgba(14, 165, 233, 0.12)",
+                            border: "1px solid rgba(14, 165, 233, 0.3)",
+                            color: "#0284c7",
                             fontSize: "0.75rem",
                             fontWeight: 800,
                           }}
@@ -607,13 +607,13 @@ export default function IncidentDetails({
                       </td>
                       <td>{item.event_type}</td>
                       <td>
-                        <span style={{ fontSize: "0.75rem", background: "rgba(255,255,255,0.08)", padding: "0.15rem 0.4rem", borderRadius: "4px" }}>
+                        <span style={{ fontSize: "0.75rem", background: "rgba(14, 165, 233, 0.16)", padding: "0.15rem 0.4rem", borderRadius: "4px" }}>
                           {item.evidence_type}
                         </span>
                       </td>
                       <td>{item.title}</td>
                       <td>
-                        <span style={{ fontSize: "0.72rem", color: "#4ade80", fontFamily: "var(--font-geist-mono)" }}>
+                        <span style={{ fontSize: "0.72rem", color: "#15803d", fontFamily: "var(--font-geist-mono)" }}>
                           ✓ SHA-256 Valid
                         </span>
                       </td>
@@ -623,9 +623,9 @@ export default function IncidentDetails({
                             fontSize: "0.75rem",
                             padding: "0.35rem 0.75rem",
                             borderRadius: "6px",
-                            background: "rgba(168, 85, 247, 0.2)",
-                            border: "1px solid rgba(168, 85, 247, 0.5)",
-                            color: "#e9d5ff",
+                            background: "rgba(14, 165, 233, 0.2)",
+                            border: "1px solid rgba(14, 165, 233, 0.5)",
+                            color: "#7c3aed",
                             cursor: "pointer",
                             fontWeight: 700,
                             transition: "all 0.2s ease",

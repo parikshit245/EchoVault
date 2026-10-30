@@ -1,6 +1,17 @@
 :root {
-  --background: #080b12;
-  --foreground: #e8edf5;
+  --background: #f5faff;
+  --foreground: #0f2740;
+  --surface: #ffffff;
+  --sky-50: #f0f9ff;
+  --sky-100: #e0f2fe;
+  --sky-200: #bae6fd;
+  --sky-500: #0ea5e9;
+  --sky-600: #0284c7;
+  --sky-700: #0369a1;
+  --ink: #0f2740;
+  --ink-soft: #334e68;
+  --ink-muted: #5b7089;
+  --line: #d6e6f5;
 }
 
 html {
@@ -18,7 +29,7 @@ body {
   display: flex;
   flex-direction: column;
   color: var(--foreground);
-  background: var(--background);
+  background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%) fixed;
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

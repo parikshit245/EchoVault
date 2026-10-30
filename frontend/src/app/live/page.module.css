@@ -1,8 +1,8 @@
 .page {
   min-height: 100vh;
   padding: 1.5rem 2rem 4rem;
-  background: radial-gradient(circle at 10% 10%, #0d121c 0%, #06090e 100%);
-  color: #e4eaf2;
+  background: radial-gradient(circle at 10% 10%, #f0f9ff 0%, #f5faff 100%);
+  color: #0f2740;
   font-family: var(--font-geist-sans), "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -10,7 +10,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(14, 165, 233, 0.16);
   padding-bottom: 1.2rem;
   margin-bottom: 2rem;
 }
@@ -18,7 +18,7 @@
 .logo {
   font-weight: 800;
   font-size: 1.4rem;
-  color: #00d2ff;
+  color: #0284c7;
   letter-spacing: -0.03em;
   text-decoration: none;
 }
@@ -26,7 +26,7 @@
 .badge {
   font-size: 0.75rem;
   letter-spacing: 0.15em;
-  color: #8da2be;
+  color: #5b7089;
   font-weight: 700;
 }
 
@@ -37,18 +37,18 @@
 }
 
 .navLink {
-  color: #9cb1cc;
+  color: #0284c7;
   text-decoration: none;
   font-size: 0.85rem;
   transition: color 0.2s ease;
 }
 
 .navLink:hover {
-  color: #ffffff;
+  color: #0f2740;
 }
 
 .navLinkActive {
-  color: #00d2ff;
+  color: #0284c7;
   font-weight: 600;
 }
 
@@ -59,7 +59,7 @@
 .kicker {
   font-size: 0.75rem;
   letter-spacing: 0.18em;
-  color: #00d2ff;
+  color: #0284c7;
   font-weight: 700;
   margin-bottom: 0.4rem;
 }
@@ -69,11 +69,11 @@
   font-weight: 800;
   letter-spacing: -0.03em;
   margin: 0 0 0.5rem 0;
-  color: #ffffff;
+  color: #0f2740;
 }
 
 .subtitle {
-  color: #94a7c0;
+  color: #5b7089;
   font-size: 1rem;
   max-width: 720px;
   line-height: 1.5;
@@ -81,8 +81,8 @@
 }
 
 .archBanner {
-  background: rgba(14, 23, 38, 0.65);
-  border: 1px solid rgba(0, 210, 255, 0.2);
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(14, 165, 233, 0.2);
   border-radius: 12px;
   padding: 1rem 1.4rem;
   margin-bottom: 2rem;
@@ -97,7 +97,7 @@
 }
 
 .archLabel {
-  color: #00d2ff;
+  color: #0284c7;
   font-weight: 700;
   font-size: 0.75rem;
   display: block;
@@ -105,7 +105,7 @@
 }
 
 .archDesc {
-  color: #9ab0c8;
+  color: #5b7089;
 }
 
 .mainGrid {
@@ -122,8 +122,8 @@
 }
 
 .controlPanel {
-  background: rgba(12, 19, 31, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(14, 165, 233, 0.16);
   border-radius: 14px;
   padding: 1.5rem;
   backdrop-filter: blur(12px);
@@ -132,7 +132,7 @@
 .panelTitle {
   font-size: 1rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #0f2740;
   margin: 0 0 1.2rem 0;
   display: flex;
   justify-content: space-between;
@@ -143,8 +143,8 @@
   font-size: 0.68rem;
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
-  background: rgba(0, 210, 255, 0.1);
-  color: #00d2ff;
+  background: rgba(14, 165, 233, 0.1);
+  color: #0284c7;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -157,7 +157,7 @@
   display: block;
   font-size: 0.78rem;
   font-weight: 600;
-  color: #8ea3bf;
+  color: #5b7089;
   margin-bottom: 0.4rem;
 }
 
@@ -166,9 +166,9 @@
   width: 100%;
   padding: 0.65rem 0.8rem;
   border-radius: 8px;
-  background: rgba(6, 10, 18, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(14, 165, 233, 0.24);
+  color: #0f2740;
   font-size: 0.88rem;
   outline: none;
   transition: border-color 0.2s;
@@ -177,7 +177,7 @@
 
 .select:focus,
 .input:focus {
-  border-color: #00d2ff;
+  border-color: #0284c7;
 }
 
 .checkGroup {
@@ -191,14 +191,14 @@
   align-items: center;
   gap: 0.45rem;
   font-size: 0.82rem;
-  color: #c4d4e6;
+  color: #0284c7;
   cursor: pointer;
 }
 
 .startBtn {
   width: 100%;
   padding: 0.8rem;
-  background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%);
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
   border: none;
   border-radius: 8px;
   color: #ffffff;
@@ -210,7 +210,7 @@
 
 .startBtn:hover:not(:disabled) {
   filter: brightness(1.15);
-  box-shadow: 0 0 16px rgba(0, 210, 255, 0.4);
+  box-shadow: 0 0 16px rgba(14, 165, 233, 0.4);
 }
 
 .startBtn:disabled {
@@ -221,7 +221,7 @@
 .stopBtn {
   width: 100%;
   padding: 0.8rem;
-  background: linear-gradient(135deg, #e53935 0%, #c62828 100%);
+  background: linear-gradient(135deg, #dc2626 0%, #dc2626 100%);
   border: none;
   border-radius: 8px;
   color: #ffffff;
@@ -234,13 +234,13 @@
 
 .stopBtn:hover {
   filter: brightness(1.15);
-  box-shadow: 0 0 16px rgba(229, 57, 53, 0.4);
+  box-shadow: 0 0 16px rgba(220, 38, 38, 0.4);
 }
 
 .errorBanner {
-  background: rgba(229, 57, 53, 0.15);
-  border: 1px solid rgba(229, 57, 53, 0.4);
-  color: #ff8a80;
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.4);
+  color: #dc2626;
   padding: 0.6rem 0.8rem;
   border-radius: 6px;
   font-size: 0.8rem;
@@ -257,11 +257,11 @@
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 10;
-  background: #070b12;
-  border: 1px solid rgba(0, 210, 255, 0.25);
+  background: #f0f9ff;
+  border: 1px solid rgba(14, 165, 233, 0.25);
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 12px 36px rgba(255, 255, 255, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -280,20 +280,20 @@
   align-items: center;
   justify-content: center;
   gap: 0.8rem;
-  color: #5c728e;
+  color: #5b7089;
   text-align: center;
   padding: 2rem;
 }
 
 .placeholderIcon {
   font-size: 2.8rem;
-  color: #3b4d63;
+  color: #5b7089;
 }
 
 .placeholderTitle {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #8fa5c2;
+  color: #5b7089;
   margin: 0;
 }
 
@@ -301,7 +301,7 @@
   font-size: 0.85rem;
   max-width: 400px;
   margin: 0;
-  color: #5a6e87;
+  color: #5b7089;
 }
 
 .videoHudTop {
@@ -316,8 +316,8 @@
 }
 
 .hudBadge {
-  background: rgba(5, 8, 14, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(14, 165, 233, 0.3);
   backdrop-filter: blur(6px);
   padding: 0.3rem 0.7rem;
   border-radius: 6px;
@@ -332,7 +332,7 @@
   gap: 0.4rem;
   background: rgba(220, 38, 38, 0.2);
   border: 1px solid rgba(220, 38, 38, 0.6);
-  color: #ff6b6b;
+  color: #dc2626;
   padding: 0.3rem 0.7rem;
   border-radius: 6px;
   font-size: 0.78rem;
@@ -344,8 +344,8 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #ef4444;
-  box-shadow: 0 0 8px #ef4444;
+  background: #dc2626;
+  box-shadow: 0 0 8px #dc2626;
   animation: pulse 1.2s infinite ease-in-out;
 }
 
@@ -360,8 +360,8 @@
   bottom: 12px;
   left: 14px;
   right: 14px;
-  background: rgba(5, 8, 14, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(14, 165, 233, 0.2);
   backdrop-filter: blur(8px);
   border-radius: 8px;
   padding: 0.5rem 0.9rem;
@@ -369,7 +369,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.75rem;
-  color: #9cb2cb;
+  color: #0284c7;
 }
 
 .statItem {
@@ -378,13 +378,13 @@
 }
 
 .statVal {
-  color: #00d2ff;
+  color: #0284c7;
   font-weight: 700;
 }
 
 .historyCard {
-  background: rgba(12, 19, 31, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(14, 165, 233, 0.16);
   border-radius: 14px;
   padding: 1.5rem;
 }
@@ -398,36 +398,36 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.82rem;
-  color: #d1dfed;
+  color: #334e68;
 }
 
 .th {
   text-align: left;
   padding: 0.6rem 0.8rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: #8da2be;
+  border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+  color: #5b7089;
   font-weight: 700;
   letter-spacing: 0.05em;
 }
 
 .td {
   padding: 0.6rem 0.8rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(14, 165, 233, 0.08);
 }
 
 .statusConnected {
-  color: #4ade80;
+  color: #15803d;
   font-weight: 700;
 }
 
 .statusEnded {
-  color: #94a3b8;
+  color: #5b7089;
 }
 
 .statusFailed {
-  color: #f87171;
+  color: #dc2626;
 }
 
 .statusConnecting {
-  color: #facc15;
+  color: #b45309;
 }

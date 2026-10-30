@@ -1,7 +1,7 @@
 .page {
   min-height: 100vh;
-  background: #070b12;
-  color: #e6edf7;
+  background: #f0f9ff;
+  color: #0284c7;
 }
 .shell {
   max-width: 1480px;
@@ -15,16 +15,16 @@
   align-items: end;
   padding: 2.3rem 2.5rem;
   margin-bottom: 1.2rem;
-  border: 1px solid #21415a;
+  border: 1px solid #0284c7;
   border-radius: 18px;
-  background: linear-gradient(110deg, #0c2433, #0c1524 70%, #11172a);
-  box-shadow: 0 15px 50px #0005;
+  background: linear-gradient(110deg, #e0f2fe, #f0f9ff 70%, #f0f9ff);
+  box-shadow: 0 15px 50px rgba(14, 116, 144, 0.14);
 }
 .eyebrow,
 .sectionKicker {
   font: 700 0.7rem var(--font-geist-mono);
   letter-spacing: 0.14em;
-  color: #58c7ee;
+  color: #0284c7;
 }
 .eyebrow {
   display: flex;
@@ -41,12 +41,12 @@
 }
 .liveDot,
 .onlineDot {
-  background: #35df9a;
-  box-shadow: 0 0 12px #35df9a;
+  background: #15803d;
+  box-shadow: 0 0 12px #15803d;
 }
 .offlineDot {
-  background: #ef6b7a;
-  box-shadow: 0 0 10px #ef6b7a;
+  background: #dc2626;
+  box-shadow: 0 0 10px #dc2626;
 }
 .hero h1 {
   font-size: clamp(2rem, 4vw, 3.7rem);
@@ -55,7 +55,7 @@
   margin: 0.65rem 0;
 }
 .hero p {
-  color: #a9bfd2;
+  color: #0284c7;
   max-width: 700px;
   line-height: 1.55;
   margin: 0;
@@ -76,13 +76,13 @@
   cursor: pointer;
 }
 .primaryButton {
-  background: #31d69b;
-  color: #062319;
+  background: #15803d;
+  color: #f0f9ff;
 }
 .secondaryButton {
-  border: 1px solid #345773;
-  background: #14283b;
-  color: #b9def2;
+  border: 1px solid #0284c7;
+  background: #e0f2fe;
+  color: #0284c7;
 }
 .primaryButton:disabled,
 .control button:disabled {
@@ -92,29 +92,29 @@
 .notice {
   padding: 0.8rem 1rem;
   margin-bottom: 1.2rem;
-  border: 1px solid #286a58;
+  border: 1px solid #15803d;
   border-radius: 9px;
-  background: #0b2b27;
-  color: #8ef0c4;
+  background: #f0f9ff;
+  color: #15803d;
 }
 .noticeError {
-  border-color: #743b49;
-  background: #2a151e;
-  color: #ffb4c0;
+  border-color: #dc2626;
+  background: #e0f2fe;
+  color: #dc2626;
 }
 .metrics {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1px;
-  background: #1c2c3c;
-  border: 1px solid #1c2c3c;
+  background: #e0f2fe;
+  border: 1px solid #e0f2fe;
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 1.4rem;
 }
 .metrics > div {
   padding: 1.1rem 1.3rem;
-  background: #0d141e;
+  background: #f0f9ff;
 }
 .metrics span,
 .metrics em,
@@ -123,13 +123,13 @@
 .control small,
 .timeline small {
   display: block;
-  color: #7890a8;
+  color: #5b7089;
   font-size: 0.73rem;
 }
 .metrics strong {
   display: block;
   font-size: 1.7rem;
-  color: #f7fbff;
+  color: #0284c7;
   margin: 0.35rem 0;
 }
 .metrics strong small {
@@ -141,10 +141,10 @@
   font-size: 0.7rem;
 }
 .good {
-  color: #5ce1aa !important;
+  color: #15803d !important;
 }
 .warn {
-  color: #f6be73 !important;
+  color: #c2410c !important;
 }
 .mainGrid,
 .bottomGrid {
@@ -154,8 +154,8 @@
   margin-bottom: 1.3rem;
 }
 .panel {
-  background: #0d141e;
-  border: 1px solid #1c2c3c;
+  background: #f0f9ff;
+  border: 1px solid #e0f2fe;
   border-radius: 14px;
   padding: 1.4rem;
   min-width: 0;
@@ -170,12 +170,12 @@
 .panelHeading h2 {
   font-size: 1.15rem;
   margin: 0.25rem 0 0;
-  color: #fff;
+  color: #0f2740;
 }
 .connectionLegend,
 .streamState {
   font-size: 0.68rem;
-  color: #8298af;
+  color: #5b7089;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -183,20 +183,20 @@
 .linkLegend {
   display: inline-block;
   width: 20px;
-  border-top: 1px dashed #3c91b5;
+  border-top: 1px dashed #0284c7;
   margin-left: 0.4rem;
 }
 .protocolBadge {
   font: 700 0.65rem var(--font-geist-mono);
-  color: #f6c779;
-  border: 1px solid #69502a;
+  color: #c2410c;
+  border: 1px solid #c2410c;
   border-radius: 4px;
   padding: 0.25rem 0.45rem;
 }
 .map {
   padding: 1.2rem;
-  background: #080e16;
-  border: 1px solid #1b3344;
+  background: #f0f9ff;
+  border: 1px solid #e0f2fe;
   border-radius: 10px;
 }
 .mapLane {
@@ -210,20 +210,20 @@
   align-items: center;
   text-align: left;
   gap: 0.7rem;
-  background: #111f2c;
-  border: 1px solid #294b60;
-  color: #fff;
+  background: #f0f9ff;
+  border: 1px solid #0284c7;
+  color: #0f2740;
   border-radius: 9px;
   padding: 0.75rem;
   cursor: pointer;
 }
 .nodeCard:hover,
 .nodeSelected {
-  border-color: #42c8ec;
-  box-shadow: 0 0 0 1px #42c8ec33;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 1px #0284c733;
 }
 .nodeOffline {
-  border-color: #693d4a;
+  border-color: #5b7089;
   opacity: 0.75;
 }
 .nodeIcon {
@@ -253,10 +253,10 @@
   margin: 1.1rem auto;
   width: 85%;
   padding: 0.8rem 1rem;
-  border: 1px dashed #3887a5;
+  border: 1px dashed #0284c7;
   border-radius: 9px;
-  background: #102538;
-  color: #c1eeff;
+  background: #e0f2fe;
+  color: #0284c7;
 }
 .bus span {
   font-size: 1.4rem;
@@ -268,13 +268,13 @@
 .bus strong {
   margin-left: auto;
   font: 800 0.68rem var(--font-geist-mono);
-  color: #f5bc6d;
+  color: #c2410c;
 }
 .route {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  color: #7fa4b9;
+  color: #5b7089;
   font: 700 0.62rem var(--font-geist-mono);
 }
 .routeLine {
@@ -282,11 +282,11 @@
   align-items: center;
   gap: 0.35rem;
   flex: 1;
-  color: #45badd;
+  color: #0284c7;
 }
 .routeLine i {
   height: 1px;
-  background: #36758c;
+  background: #0284c7;
   flex: 1;
 }
 .routeLine b {
@@ -296,8 +296,8 @@
 .mapCaption {
   margin-top: 1rem;
   padding: 0.75rem;
-  border-left: 3px solid #e5ae59;
-  color: #a9bbc9;
+  border-left: 3px solid #c2410c;
+  color: #0f2740;
   font-size: 0.76rem;
   line-height: 1.5;
 }
@@ -305,7 +305,7 @@
 .emptyTimeline {
   text-align: center;
   padding: 2rem;
-  color: #8298af;
+  color: #5b7089;
   font-size: 0.85rem;
 }
 .controlStack {
@@ -318,8 +318,8 @@
   align-items: center;
   gap: 0.7rem;
   padding: 0.85rem;
-  background: #111b27;
-  border: 1px solid #20394b;
+  background: #f0f9ff;
+  border: 1px solid #e0f2fe;
   border-radius: 9px;
 }
 .control > div {
@@ -328,7 +328,7 @@
 .control b {
   display: block;
   font-size: 0.8rem;
-  color: #e8f4fc;
+  color: #0284c7;
 }
 .control small {
   line-height: 1.4;
@@ -336,35 +336,35 @@
 }
 .control button {
   white-space: nowrap;
-  background: #1d6f88;
-  color: #e7fbff;
+  background: #0284c7;
+  color: #ffffff;
   font-size: 0.7rem;
 }
 .control select {
-  background: #08111b;
-  color: #d9edf7;
-  border: 1px solid #355267;
+  background: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #0284c7;
   border-radius: 6px;
   padding: 0.45rem;
 }
 .control .dangerButton {
-  background: #612e3c;
-  color: #ffc0c8;
+  background: #dc2626;
+  color: #ffffff;
 }
 .controlFooter {
-  border-top: 1px solid #1c2c3c;
+  border-top: 1px solid #e0f2fe;
   margin-top: 1rem;
   padding-top: 0.9rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #8298af;
+  color: #5b7089;
   font-size: 0.75rem;
 }
 .controlFooter button {
   padding: 0.35rem 0.5rem;
   background: transparent;
-  color: #63c9e8;
+  color: #0284c7;
   font-size: 0.7rem;
 }
 .timeline {
@@ -377,39 +377,39 @@
   gap: 0.7rem;
   align-items: start;
   padding: 0.65rem 0;
-  border-bottom: 1px solid #172532;
+  border-bottom: 1px solid #e0f2fe;
 }
 .timelineTime {
   font: 600 0.65rem var(--font-geist-mono);
-  color: #748da4;
+  color: #5b7089;
   padding-top: 0.15rem;
 }
 .timelineDot {
   width: 9px;
   height: 9px;
-  border: 2px solid #36c5ea;
+  border: 2px solid #0284c7;
   border-radius: 50%;
   margin-top: 0.18rem;
-  box-shadow: 0 0 8px #36c5ea66;
+  box-shadow: 0 0 8px #0284c766;
 }
 .timelineItem b {
   display: block;
   font-size: 0.8rem;
-  color: #ebf8ff;
+  color: #0284c7;
 }
 .timelineItem small {
   margin-top: 0.25rem;
 }
 .timelineItem small span {
-  color: #4fd4a6;
+  color: #15803d;
   margin: 0 0.3rem;
 }
 .timelineItem code {
-  color: #c4a0ee;
+  color: #7c3aed;
 }
 .teachingCard {
-  background: linear-gradient(135deg, #12283a, #17182a);
-  border: 1px solid #2e536a;
+  background: linear-gradient(135deg, #e0f2fe, #e0f2fe);
+  border: 1px solid #0284c7;
   border-radius: 10px;
   padding: 1rem;
 }
@@ -417,29 +417,29 @@
   font-size: 1.15rem;
   line-height: 1.3;
   font-weight: 800;
-  color: #8de4f6;
+  color: #0284c7;
 }
 .teachingCard p {
-  color: #a9bccb;
+  color: #0f2740;
   font-size: 0.78rem;
   line-height: 1.5;
 }
 .teachingRows {
   display: grid;
   gap: 0.35rem;
-  border-top: 1px solid #294457;
+  border-top: 1px solid #0284c7;
   padding-top: 0.7rem;
-  color: #a6bdcc;
+  color: #0f2740;
   font-size: 0.72rem;
 }
 .teachingRows b {
-  color: #f2c477;
+  color: #c2410c;
   font-family: var(--font-geist-mono);
 }
 .textLink {
   display: block;
   margin-top: 1rem;
-  color: #54c8eb;
+  color: #0284c7;
   font-size: 0.75rem;
   font-weight: 700;
 }

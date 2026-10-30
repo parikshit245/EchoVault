@@ -10,7 +10,7 @@ export default function Home() {
           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
             <span className={styles.mark}>⚡</span>
             <span
-              style={{ fontWeight: 800, fontSize: "1.1rem", color: "#fff" }}
+              style={{ fontWeight: 800, fontSize: "1.1rem", color: "#0f2740" }}
             >
               EchoVault
             </span>
@@ -22,12 +22,12 @@ export default function Home() {
                 width: "8px",
                 height: "8px",
                 borderRadius: "50%",
-                background: "#22c55e",
+                background: "#16a34a",
                 display: "inline-block",
               }}
             />
             <span
-              style={{ fontSize: "0.78rem", color: "#86efac", fontWeight: 700 }}
+              style={{ fontSize: "0.78rem", color: "#15803d", fontWeight: 700 }}
             >
               Secure workspace ready
             </span>
@@ -59,12 +59,12 @@ export default function Home() {
               style={{
                 padding: "0.95rem 1.8rem",
                 borderRadius: "10px",
-                background: "linear-gradient(135deg, #00d2ff 0%, #0072ff 100%)",
+                background: "linear-gradient(135deg, #0284c7 0%, #0284c7 100%)",
                 color: "#ffffff",
                 textDecoration: "none",
                 fontWeight: 800,
                 fontSize: "1rem",
-                boxShadow: "0 6px 25px rgba(0, 210, 255, 0.4)",
+                boxShadow: "0 6px 25px rgba(14, 165, 233, 0.4)",
               }}
             >
               🚨 Open active case →
@@ -75,9 +75,9 @@ export default function Home() {
               style={{
                 padding: "0.95rem 1.6rem",
                 borderRadius: "10px",
-                background: "rgba(255, 255, 255, 0.06)",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                color: "#f8fafc",
+                background: "rgba(14, 165, 233, 0.12)",
+                border: "1px solid rgba(14, 165, 233, 0.3)",
+                color: "#0f2740",
                 textDecoration: "none",
                 fontWeight: 700,
                 fontSize: "1rem",
@@ -92,9 +92,9 @@ export default function Home() {
               style={{
                 padding: "0.95rem 1.4rem",
                 borderRadius: "10px",
-                background: "rgba(255, 255, 255, 0.06)",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                color: "#f8fafc",
+                background: "rgba(14, 165, 233, 0.12)",
+                border: "1px solid rgba(14, 165, 233, 0.3)",
+                color: "#0f2740",
                 textDecoration: "none",
                 fontWeight: 700,
                 fontSize: "1rem",
@@ -123,8 +123,8 @@ export default function Home() {
         >
           <div
             style={{
-              background: "rgba(15, 23, 42, 0.7)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255, 255, 255, 0.7)",
+              border: "1px solid rgba(14, 165, 233, 0.16)",
               padding: "1.2rem",
               borderRadius: "10px",
             }}
@@ -133,7 +133,7 @@ export default function Home() {
             <h3
               style={{
                 margin: "0 0 0.3rem 0",
-                color: "#f8fafc",
+                color: "#0f2740",
                 fontSize: "1rem",
                 fontWeight: 700,
               }}
@@ -143,7 +143,7 @@ export default function Home() {
             <p
               style={{
                 margin: 0,
-                color: "#94a3b8",
+                color: "#5b7089",
                 fontSize: "0.82rem",
                 lineHeight: 1.4,
               }}
@@ -155,8 +155,8 @@ export default function Home() {
 
           <div
             style={{
-              background: "rgba(15, 23, 42, 0.7)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255, 255, 255, 0.7)",
+              border: "1px solid rgba(14, 165, 233, 0.16)",
               padding: "1.2rem",
               borderRadius: "10px",
             }}
@@ -165,7 +165,7 @@ export default function Home() {
             <h3
               style={{
                 margin: "0 0 0.3rem 0",
-                color: "#f8fafc",
+                color: "#0f2740",
                 fontSize: "1rem",
                 fontWeight: 700,
               }}
@@ -175,7 +175,7 @@ export default function Home() {
             <p
               style={{
                 margin: 0,
-                color: "#94a3b8",
+                color: "#5b7089",
                 fontSize: "0.82rem",
                 lineHeight: 1.4,
               }}
@@ -187,8 +187,8 @@ export default function Home() {
 
           <div
             style={{
-              background: "rgba(15, 23, 42, 0.7)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255, 255, 255, 0.7)",
+              border: "1px solid rgba(14, 165, 233, 0.16)",
               padding: "1.2rem",
               borderRadius: "10px",
             }}
@@ -197,7 +197,7 @@ export default function Home() {
             <h3
               style={{
                 margin: "0 0 0.3rem 0",
-                color: "#f8fafc",
+                color: "#0f2740",
                 fontSize: "1rem",
                 fontWeight: 700,
               }}
@@ -207,7 +207,7 @@ export default function Home() {
             <p
               style={{
                 margin: 0,
-                color: "#94a3b8",
+                color: "#5b7089",
                 fontSize: "0.82rem",
                 lineHeight: 1.4,
               }}
@@ -219,8 +219,8 @@ export default function Home() {
 
           <div
             style={{
-              background: "rgba(15, 23, 42, 0.7)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255, 255, 255, 0.7)",
+              border: "1px solid rgba(14, 165, 233, 0.16)",
               padding: "1.2rem",
               borderRadius: "10px",
             }}
@@ -229,7 +229,7 @@ export default function Home() {
             <h3
               style={{
                 margin: "0 0 0.3rem 0",
-                color: "#f8fafc",
+                color: "#0f2740",
                 fontSize: "1rem",
                 fontWeight: 700,
               }}
@@ -239,7 +239,7 @@ export default function Home() {
             <p
               style={{
                 margin: 0,
-                color: "#94a3b8",
+                color: "#5b7089",
                 fontSize: "0.82rem",
                 lineHeight: 1.4,
               }}
@@ -256,7 +256,7 @@ export default function Home() {
             <Link
               href="/dashboard"
               style={{
-                color: "#00d2ff",
+                color: "#0284c7",
                 textDecoration: "none",
                 fontSize: "0.82rem",
                 fontWeight: 700,
@@ -267,7 +267,7 @@ export default function Home() {
             <Link
               href="/incidents"
               style={{
-                color: "#8da2be",
+                color: "#5b7089",
                 textDecoration: "none",
                 fontSize: "0.82rem",
               }}
@@ -277,7 +277,7 @@ export default function Home() {
             <Link
               href="/evidence"
               style={{
-                color: "#8da2be",
+                color: "#5b7089",
                 textDecoration: "none",
                 fontSize: "0.82rem",
               }}
@@ -287,7 +287,7 @@ export default function Home() {
             <Link
               href="/live"
               style={{
-                color: "#8da2be",
+                color: "#5b7089",
                 textDecoration: "none",
                 fontSize: "0.82rem",
               }}

@@ -1,10 +1,10 @@
 .wrapper {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(10, 15, 26, 0.98) 100%);
-  border: 1px solid rgba(0, 210, 255, 0.25);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.92) 100%);
+  border: 1px solid rgba(14, 165, 233, 0.25);
   border-radius: 14px;
   padding: 1.5rem;
   margin-bottom: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(14, 116, 144, 0.25), inset 0 1px 0 rgba(14, 165, 233, 0.2);
   font-family: var(--font-geist-sans), -apple-system, sans-serif;
   position: relative;
   overflow: hidden;
@@ -17,7 +17,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #00d2ff, #3b82f6, #8b5cf6);
+  background: linear-gradient(90deg, #0284c7, #0284c7, #7c3aed);
 }
 
 .topHeader {
@@ -27,20 +27,20 @@
   flex-wrap: wrap;
   gap: 1.2rem;
   padding-bottom: 1.2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(14, 165, 233, 0.16);
 }
 
 .titleArea h3 {
   margin: 0.25rem 0 0.15rem 0;
   font-size: 1.2rem;
   font-weight: 800;
-  color: #f8fafc;
+  color: #0f2740;
 }
 
 .titleArea p {
   margin: 0;
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: #5b7089;
 }
 
 .badgePulse {
@@ -50,9 +50,9 @@
   letter-spacing: 0.08em;
   padding: 0.2rem 0.6rem;
   border-radius: 9999px;
-  background: rgba(0, 210, 255, 0.15);
-  color: #00d2ff;
-  border: 1px solid rgba(0, 210, 255, 0.4);
+  background: rgba(14, 165, 233, 0.15);
+  color: #0284c7;
+  border: 1px solid rgba(14, 165, 233, 0.4);
 }
 
 .stepperNav {
@@ -67,9 +67,9 @@
   gap: 0.45rem;
   padding: 0.4rem 0.8rem;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #94a3b8;
+  background: rgba(14, 165, 233, 0.08);
+  border: 1px solid rgba(14, 165, 233, 0.16);
+  color: #5b7089;
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
@@ -77,20 +77,20 @@
 }
 
 .stepBtn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #f8fafc;
+  background: rgba(14, 165, 233, 0.16);
+  color: #0f2740;
 }
 
 .stepBtnActive {
-  background: rgba(0, 210, 255, 0.15) !important;
-  border-color: #00d2ff !important;
-  color: #00d2ff !important;
-  box-shadow: 0 0 12px rgba(0, 210, 255, 0.2);
+  background: rgba(14, 165, 233, 0.15) !important;
+  border-color: #0284c7 !important;
+  color: #0284c7 !important;
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.2);
 }
 
 .stepBtnPast {
-  border-color: rgba(34, 197, 94, 0.3);
-  color: #86efac;
+  border-color: rgba(22, 163, 74, 0.3);
+  color: #15803d;
 }
 
 .stepNum {
@@ -100,13 +100,13 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(14, 165, 233, 0.2);
   font-size: 0.7rem;
 }
 
 .stepBtnActive .stepNum {
-  background: #00d2ff;
-  color: #05080e;
+  background: #0284c7;
+  color: #f0f9ff;
 }
 
 .stageCard {
@@ -136,7 +136,7 @@
   letter-spacing: 0.06em;
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
-  background: #3b82f6;
+  background: #0284c7;
   color: #fff;
 }
 
@@ -146,62 +146,62 @@
   font-family: var(--font-geist-mono), monospace;
   padding: 0.2rem 0.6rem;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #e2e8f0;
+  background: rgba(14, 165, 233, 0.14);
+  border: 1px solid rgba(14, 165, 233, 0.24);
+  color: #0f2740;
 }
 
 .stageHeading {
   margin: 0 0 0.5rem 0;
   font-size: 1.35rem;
   font-weight: 800;
-  color: #f8fafc;
+  color: #0f2740;
 }
 
 .stageDesc {
   margin: 0 0 0.8rem 0;
   font-size: 0.95rem;
   line-height: 1.5;
-  color: #cbd5e1;
+  color: #0f2740;
 }
 
 .explanationBox {
-  background: rgba(0, 0, 0, 0.35);
-  border-left: 3px solid #00d2ff;
+  background: rgba(14, 116, 144, 0.25);
+  border-left: 3px solid #0284c7;
   padding: 0.6rem 0.9rem;
   border-radius: 0 6px 6px 0;
   font-size: 0.82rem;
   line-height: 1.4;
-  color: #93c5fd;
+  color: #0284c7;
 }
 
 .stageActions {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(14, 116, 144, 0.25);
   padding: 1.2rem;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(14, 165, 233, 0.16);
 }
 
 .executeBtn {
   width: 100%;
   padding: 0.85rem 1.2rem;
   border-radius: 8px;
-  background: linear-gradient(135deg, #00d2ff 0%, #0072ff 100%);
+  background: linear-gradient(135deg, #0284c7 0%, #0284c7 100%);
   color: #ffffff;
   border: none;
   font-size: 0.95rem;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 210, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
   transition: all 0.2s ease;
 }
 
 .executeBtn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 210, 255, 0.45);
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.45);
 }
 
 .executeBtn:disabled {
@@ -225,24 +225,24 @@
 }
 
 .secondaryBtn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #94a3b8;
+  background: rgba(14, 165, 233, 0.1);
+  border: 1px solid rgba(14, 165, 233, 0.24);
+  color: #5b7089;
 }
 
 .secondaryBtn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
-  color: #f8fafc;
+  background: rgba(14, 165, 233, 0.2);
+  color: #0f2740;
 }
 
 .primaryNextBtn {
-  background: rgba(59, 130, 246, 0.2);
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  color: #93c5fd;
+  background: rgba(14, 165, 233, 0.2);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+  color: #0284c7;
 }
 
 .primaryNextBtn:hover:not(:disabled) {
-  background: rgba(59, 130, 246, 0.35);
+  background: rgba(14, 165, 233, 0.35);
   color: #fff;
 }
 
@@ -261,21 +261,21 @@
 }
 
 .toastSuccess {
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid rgba(34, 197, 94, 0.4);
-  color: #86efac;
+  background: rgba(22, 163, 74, 0.15);
+  border: 1px solid rgba(22, 163, 74, 0.4);
+  color: #15803d;
 }
 
 .toastError {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #fca5a5;
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.4);
+  color: #b91c1c;
 }
 
 .toastInfo {
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  color: #93c5fd;
+  background: rgba(14, 165, 233, 0.15);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+  color: #0284c7;
 }
 
 @keyframes fadeIn {
